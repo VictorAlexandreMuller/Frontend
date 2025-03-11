@@ -35,8 +35,10 @@ class _LoginPage extends State<LoginPage> {
           mainDivider(),
           SizedBox(height: 20),
           inputGroup(),
+          SizedBox(height: 25),
+          buttonGroup(),
           SizedBox(height: 50),
-          buttonGroup()
+          mainDivider(),
         ],
       ),
     );
@@ -48,7 +50,7 @@ class _LoginPage extends State<LoginPage> {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontFamily: "Inder",
-        fontSize: 20,
+        fontSize: 23,
         fontWeight: FontWeight.w400,
         color: Colors.white,
         letterSpacing: 3.0,
@@ -73,9 +75,11 @@ class _LoginPage extends State<LoginPage> {
         children: [
           InputLogin(
             label: 'Login',
+            isPassword: false,
           ),
           InputLogin(
             label: 'Password',
+            isPassword: true,
           ),
         ],
       ),

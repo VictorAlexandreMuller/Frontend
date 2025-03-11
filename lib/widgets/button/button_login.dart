@@ -20,26 +20,32 @@ class ButtonLogin extends StatelessWidget {
     return InkWell(
       onTap: enabled ? onPressed : null,
       child: Container(
-        height: 60,
+        height: 55,
         width: 200,
-        decoration: ShapeDecoration(
+        decoration: BoxDecoration(
           color: Color(0xFFDCB98E),
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                rounded ? BorderRadius.circular(20) : BorderRadius.circular(10),
-            side: BorderSide(
-              color: Color(0xFF967348),
-              width: 2,
-            ),
+          borderRadius:
+              rounded ? BorderRadius.circular(30) : BorderRadius.circular(10),
+          border: Border.all(
+            color: Color(0xFF967348),
+            width: 2,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(1, 5),
+            ),
+          ],
         ),
         child: Center(
           child: Text(
             text,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
               fontFamily: 'InriaSans',
               letterSpacing: 3.0,
             ),
