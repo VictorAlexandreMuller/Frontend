@@ -1,11 +1,16 @@
+import 'package:festora/pages/login/register_page.dart';
+import 'package:festora/pages/menu/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/button/button_login.dart';
 import '../../widgets/input/input_login.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  static const String name = "LoginPage";
 
   @override
   State<StatefulWidget> createState() => _LoginPage();
@@ -25,7 +30,7 @@ class _LoginPage extends State<LoginPage> {
 
   Widget homePage() {
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -70,7 +75,7 @@ class _LoginPage extends State<LoginPage> {
 
   Widget inputGroup() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           InputLogin(
@@ -91,26 +96,44 @@ class _LoginPage extends State<LoginPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ButtonLogin(
-          text: 'Enter',
-          enabled: true,
-          rounded: true,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ButtonLogin(
+            text: 'Enter',
+            enabled: true,
+            rounded: true,
+            onPressed: () {
+              context.goNamed(HomePage.name);
+            },
+          ),
         ),
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ButtonLogin(
-              text: 'Sign Up',
-              enabled: true,
-              rounded: false,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ButtonLogin(
+                  text: 'Sign Up',
+                  enabled: true,
+                  rounded: false,
+                  onPressed: () {
+                    context.goNamed(RegisterPage.name);
+                  },
+                ),
+              ),
             ),
-            SizedBox(width: 10),
-            ButtonLogin(
-              text: 'Help',
-              enabled: true,
-              rounded: false,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ButtonLogin(
+                  text: 'Help',
+                  enabled: true,
+                  rounded: false,
+                ),
+              ),
             ),
           ],
         )

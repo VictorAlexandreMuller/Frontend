@@ -21,7 +21,7 @@ class ButtonLogin extends StatelessWidget {
       onTap: enabled ? onPressed : null,
       child: Container(
         height: 55,
-        width: 200,
+        width: double.infinity,
         decoration: BoxDecoration(
           color: Color(0xFFDCB98E),
           borderRadius:
