@@ -6,6 +6,10 @@ import '../login/login_page.dart';
 import '../login/register_page.dart';
 import '../menu/home_page.dart';
 
+import '../../pages/event/criar/criacao_cha_fraldas_page.dart';
+import '../../pages/event/criar/criacao_cha_revelacao_page.dart';
+import '../../pages/event/criar/criacao_cha_bebe_page.dart';
+
 abstract class AppRouter {
   static GoRouter router = GoRouter(
     initialLocation: '/login',
@@ -13,22 +17,39 @@ abstract class AppRouter {
       GoRoute(
         path: '/login',
         name: LoginPage.name,
-        builder: (context, state) => LoginPage(),
+        builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
         path: '/help',
         name: HelpPage.name,
-        builder: (context, state) => HelpPage(),
+        builder: (context, state) => const HelpPage(),
       ),
       GoRoute(
         path: '/register',
         name: RegisterPage.name,
-        builder: (context, state) => RegisterPage(),
+        builder: (context, state) => const RegisterPage(),
       ),
       GoRoute(
         path: '/menu',
         name: HomePage.name,
-        builder: (context, state) => HomePage(),
+        builder: (context, state) => const HomePage(),
+      ),
+
+      // 🍵 ROTAS DE CRIAÇÃO DE CHÁS
+      GoRoute(
+        path: CriarChaBebePage.routeName,
+        name: 'criar-cha-bebe',
+        builder: (context, state) => const CriarChaBebePage(),
+      ),
+      GoRoute(
+        path: CriarChaRevelacaoPage.routeName,
+        name: 'criar-cha-revelacao',
+        builder: (context, state) => const CriarChaRevelacaoPage(),
+      ),
+      GoRoute(
+        path: CriarChaFraldasPage.routeName,
+        name: 'criar-cha-fraldas',
+        builder: (context, state) => const CriarChaFraldasPage(),
       ),
     ],
     // redirect: _guard,
@@ -40,7 +61,6 @@ abstract class AppRouter {
       '/register',
       '/help',
     ];
-
     return null;
   }
 }
