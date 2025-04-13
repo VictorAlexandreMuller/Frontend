@@ -37,8 +37,8 @@ abstract class AppRouter {
   static String? _guard(BuildContext context, GoRouterState state) {
     final publicLocations = [
       '/login',
-      '/register'
-      '/help'
+      '/register',
+      '/help',
     ];
 
     return null;

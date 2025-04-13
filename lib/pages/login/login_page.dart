@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../widgets/button/button_login.dart';
 import '../../widgets/input/input_login.dart';
+import '../../widgets/background/animated_gradient_background.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,84 +23,77 @@ class _LoginPage extends State<LoginPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Color(0xFFd6a467),
-        body: Container(child: homePage()),
-      ),
-    );
-  }
-
-  Widget homePage() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          homeTitle(),
-          SizedBox(height: 50),
-          mainDivider(),
-          SizedBox(height: 20),
-          inputGroup(),
-          SizedBox(height: 25),
-          buttonGroup(),
-          SizedBox(height: 50),
-          mainDivider(),
-        ],
+        backgroundColor: const Color(0xFFF3F3F3), // ✅ branco gelo
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                homeTitle(),
+                const SizedBox(height: 50),
+                mainDivider(),
+                const SizedBox(height: 20),
+                inputGroup(),
+                const SizedBox(height: 25),
+                buttonGroup(),
+                const SizedBox(height: 50),
+                mainDivider(),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget homeTitle() {
-    return Text(
-      "FESTORA",
+    return const Text(
+      "DOCE ENCONTRO",
       textAlign: TextAlign.center,
       style: TextStyle(
         fontFamily: "Inder",
         fontSize: 23,
         fontWeight: FontWeight.w400,
-        color: Colors.white,
+        color: Colors.black87,
         letterSpacing: 3.0,
       ),
     );
   }
 
   Widget mainDivider() {
-    return Divider(
+    return const Divider(
       height: 1,
       thickness: 2,
-      color: Colors.white,
+      color: Colors.black87,
       indent: 30,
       endIndent: 30,
     );
   }
 
   Widget inputGroup() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          InputLogin(
-            label: 'Login',
-            isPassword: false,
-          ),
-          InputLogin(
-            label: 'Password',
-            isPassword: true,
-          ),
-        ],
-      ),
+    return Column(
+      children: const [
+        InputLogin(
+          label: 'Login',
+          isPassword: false,
+        ),
+        InputLogin(
+          label: 'Password',
+          isPassword: true,
+        ),
+      ],
     );
   }
 
   Widget buttonGroup() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ButtonLogin(
-            text: 'Enter',
+            text: 'Entrar',
             enabled: true,
             rounded: true,
             onPressed: () {
@@ -109,14 +103,12 @@ class _LoginPage extends State<LoginPage> {
         ),
         const SizedBox(height: 30),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ButtonLogin(
-                  text: 'Sign Up',
+                  text: 'Cadastrar',
                   enabled: true,
                   rounded: false,
                   onPressed: () {
@@ -129,7 +121,7 @@ class _LoginPage extends State<LoginPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ButtonLogin(
-                  text: 'Help',
+                  text: 'Ajuda',
                   enabled: true,
                   rounded: false,
                 ),

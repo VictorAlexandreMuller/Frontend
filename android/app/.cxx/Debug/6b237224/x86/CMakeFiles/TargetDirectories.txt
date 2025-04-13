@@ -1,0 +1,2 @@
+C:/Users/PC/Documents/Dev/1- ADS - FACENS/##Startup II Festora/Frontend/android/app/.cxx/Debug/6b237224/x86/CMakeFiles/edit_cache.dir
+C:/Users/PC/Documents/Dev/1- ADS - FACENS/##Startup II Festora/Frontend/android/app/.cxx/Debug/6b237224/x86/CMakeFiles/rebuild_cache.dir
