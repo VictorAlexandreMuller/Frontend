@@ -34,4 +34,20 @@ class EventoModel {
       'numero': numero,
     };
   }
+
+  factory EventoModel.fromJson(Map<String, dynamic> json) {
+    final endereco = json['endereco'];
+
+    return EventoModel(
+      titulo: json['titulo'],
+      descricao: json['descricao'],
+      tipo: json['tipo'],
+      data: json['data'],
+      local: endereco['local'],
+      estado: endereco['estado'],
+      cidade: endereco['cidade'],
+      rua: endereco['rua'],
+      numero: endereco['numero'],
+    );
+  }
 }

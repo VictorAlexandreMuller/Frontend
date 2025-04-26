@@ -1,3 +1,6 @@
+import 'package:festora/models/evento_model.dart';
+import 'package:festora/services/evento_service.dart';
+import 'package:festora/utils/TokenHelper.dart';
 import 'package:festora/widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,7 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
   static const String name = 'HomePage';
 
+
   @override
   State<StatefulWidget> createState() => _HomePageState();
 }
@@ -17,16 +21,21 @@ class _HomePageState extends State<HomePage> {
   int selectedItem = 0;
 
   // Simulação de chás cadastrados
-  final List<Map<String, String>> chas = [
-    {
-      "nome": "Chá da Alice",
-      "descricao": "Chá de bebê",
-    },
-    {
-      "nome": "Chá Revelação",
-      "descricao": "Menina ou menino?",
-    },
-  ];
+  List<EventoModel> chas = [];
+
+   @override
+  void initState() {
+    super.initState();
+    carregarEventosAtivos();
+  }
+
+  Future<void> carregarEventosAtivos() async {
+    final eventos = await EventoService().listarEventosAtivos(await TokenHelper.getToken());
+    setState(() {
+      chas = eventos;
+    });
+}
+
 
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
@@ -77,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                evento["nome"]!,
+                                evento.titulo!,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -86,7 +95,14 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                evento["descricao"]!,
+                                evento.descricao!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              Text(
+                                evento.data!,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.black54,
