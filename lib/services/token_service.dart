@@ -1,5 +1,6 @@
 import 'package:festora/config/api_config.dart';
 import 'package:festora/pages/login/login_page.dart';
+import 'package:festora/pages/login/register_page.dart';
 import 'package:festora/pages/menu/home_page.dart';
 import 'package:festora/utils/TokenHelper.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,7 @@ class TokenService {
 
     if (response.statusCode == 200) {
       // Token válido
-      if (currentRoute == 'LoginPage') {
-        // Está na tela de login => manda pra home
+      if (currentRoute == LoginPage.name || currentRoute == RegisterPage.name) {
         context.goNamed(HomePage.name);
       }
     } else {
