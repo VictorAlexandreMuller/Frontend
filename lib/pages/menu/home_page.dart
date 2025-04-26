@@ -1,5 +1,7 @@
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/models/usuario_details_model' as u;
 import 'package:festora/services/evento_service.dart';
+import 'package:festora/services/usuario_service.dart';
 import 'package:festora/utils/TokenHelper.dart';
 import 'package:festora/widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
@@ -17,16 +19,20 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _HomePageState();
 }
 
+late u.UsuarioDetailsModel usuario;
+List<EventoModel> chas = [];
+late String usuarioNome = 'Carregando...';
+
 class _HomePageState extends State<HomePage> {
   int selectedItem = 0;
 
-  // Simulação de chás cadastrados
-  List<EventoModel> chas = [];
+
 
    @override
   void initState() {
     super.initState();
     carregarEventosAtivos();
+    carregarUsuario();
   }
 
   Future<void> carregarEventosAtivos() async {
@@ -35,6 +41,15 @@ class _HomePageState extends State<HomePage> {
       chas = eventos;
     });
 }
+
+  Future<void> carregarUsuario() async {
+    final buscarUsuario = await UsuarioService().obterUsuario();
+    setState(() {
+      usuario = buscarUsuario;
+      usuarioNome = buscarUsuario.nome;
+    });
+}
+
 
 
   final List<Map<String, dynamic>> funcoes = [
@@ -55,11 +70,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+      return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F3F3),
-        appBar: const GradientAppBar("Usuária"),
+        appBar: GradientAppBar(usuarioNome),
         bottomNavigationBar: CustomBottomNavigation(
           currentIndex: selectedItem,
           onItemSelected: _onBNTapped,
