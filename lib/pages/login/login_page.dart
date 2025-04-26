@@ -1,12 +1,14 @@
+
+import 'package:festora/models/login_model.dart';
 import 'package:festora/pages/login/register_page.dart';
 import 'package:festora/pages/menu/home_page.dart';
+import 'package:festora/services/login_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../widgets/button/button_login.dart';
 import '../../widgets/input/input_login.dart';
-import '../../widgets/background/animated_gradient_background.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,6 +20,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
+    final TextEditingController _loginController = TextEditingController();
+    final TextEditingController _senhaController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -73,15 +78,18 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Widget inputGroup() {
+    
     return Column(
-      children: const [
+      children: [
         InputLogin(
           label: 'Login',
           isPassword: false,
+          controller: _loginController,
         ),
         InputLogin(
           label: 'Password',
           isPassword: true,
+          controller: _senhaController,
         ),
       ],
     );
@@ -96,8 +104,21 @@ class _LoginPage extends State<LoginPage> {
             text: 'Entrar',
             enabled: true,
             rounded: true,
-            onPressed: () {
-              context.goNamed(HomePage.name);
+            onPressed: () async {
+              final login = _loginController.text;
+              final senha = _senhaController.text;
+
+              final sucesso = await LoginService().fazerLogin(LoginModel(
+                email: login,
+                senha: senha,
+              ));
+              if (sucesso == true) {
+                context.goNamed(HomePage.name);
+              } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Login ou senha incorretos")),
+                );
+              }
             },
           ),
         ),

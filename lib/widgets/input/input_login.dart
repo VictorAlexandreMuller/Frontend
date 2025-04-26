@@ -6,10 +6,12 @@ class InputLogin extends StatefulWidget {
     super.key,
     required this.label,
     required this.isPassword,
+    this.controller,
   });
 
   final String label;
   final bool isPassword;
+  final TextEditingController? controller;
 
   @override
   _InputLoginState createState() => _InputLoginState();
@@ -39,6 +41,7 @@ class _InputLoginState extends State<InputLogin> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextFormField(
+        controller: widget.controller,
         focusNode: _focusNode,
         obscureText: widget.isPassword,
         enableSuggestions: !widget.isPassword,
