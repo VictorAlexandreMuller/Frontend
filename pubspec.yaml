@@ -39,6 +39,8 @@ dependencies:
 
   # ------------------
   http: ^1.3.0
+  shared_preferences: ^2.2.2 # (ou a versão mais nova)
+
 
 dev_dependencies:
   flutter_test:
