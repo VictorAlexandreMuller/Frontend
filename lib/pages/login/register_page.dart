@@ -1,4 +1,6 @@
+import 'package:festora/models/UsuarioRegisterModel';
 import 'package:festora/pages/login/login_page.dart';
+import 'package:festora/services/registro_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,12 +18,35 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPage extends State<RegisterPage> {
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _repeatPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _register() {
+    final nome = _nomeController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final repeatPassword = _repeatPasswordController.text;
+
+   Future<bool> result = RegistroService().criarUsuario(UsuarioRegisterModel(nome: nome, email: email, password: password, repeatPassword: repeatPassword));
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Color(0xFFd6a467),
+        backgroundColor: const Color(0xFFd6a467),
         body: Container(child: homePage()),
       ),
     );
@@ -35,13 +60,13 @@ class _RegisterPage extends State<RegisterPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           homeTitle(),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           mainDivider(),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           inputGroup(),
-          SizedBox(height: 25),
+          const SizedBox(height: 25),
           buttonGroup(),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           mainDivider(),
         ],
       ),
@@ -49,7 +74,7 @@ class _RegisterPage extends State<RegisterPage> {
   }
 
   Widget homeTitle() {
-    return Text(
+    return const Text(
       "REGISTRO",
       textAlign: TextAlign.center,
       style: TextStyle(
@@ -63,7 +88,7 @@ class _RegisterPage extends State<RegisterPage> {
   }
 
   Widget mainDivider() {
-    return Divider(
+    return const Divider(
       height: 1,
       thickness: 2,
       color: Colors.white,
@@ -80,22 +105,22 @@ class _RegisterPage extends State<RegisterPage> {
           InputLogin(
             label: 'Nome',
             isPassword: false,
+            controller: _nomeController,
           ),
           InputLogin(
             label: 'E-mail',
             isPassword: false,
-          ),
-          InputLogin(
-            label: 'Login',
-            isPassword: false,
+            controller: _emailController,
           ),
           InputLogin(
             label: 'Password',
             isPassword: true,
+            controller: _passwordController,
           ),
           InputLogin(
             label: 'Repeat Password',
             isPassword: true,
+            controller: _repeatPasswordController,
           ),
         ],
       ),
@@ -128,9 +153,10 @@ class _RegisterPage extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ButtonLogin(
-                  text: 'Help',
+                  text: 'Registrar',
                   enabled: true,
                   rounded: false,
+                  onPressed: _register,
                 ),
               ),
             ),
