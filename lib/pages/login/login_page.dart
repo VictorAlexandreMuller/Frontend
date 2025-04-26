@@ -3,6 +3,7 @@ import 'package:festora/models/login_model.dart';
 import 'package:festora/pages/login/register_page.dart';
 import 'package:festora/pages/menu/home_page.dart';
 import 'package:festora/services/login_service.dart';
+import 'package:festora/services/token_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,9 +20,19 @@ class LoginPage extends StatefulWidget {
   State<StatefulWidget> createState() => _LoginPage();
 }
 
+void verificarToken(BuildContext context) async {
+  TokenService.verificarToken(context);
+}
+
 class _LoginPage extends State<LoginPage> {
     final TextEditingController _loginController = TextEditingController();
     final TextEditingController _senhaController = TextEditingController();
+
+    @override
+    void initState() {
+      super.initState();
+      verificarToken(context);
+    }
 
   @override
   Widget build(BuildContext context) {

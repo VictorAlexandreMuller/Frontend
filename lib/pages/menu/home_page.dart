@@ -1,11 +1,13 @@
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model' as u;
 import 'package:festora/services/evento_service.dart';
+import 'package:festora/services/token_service.dart';
 import 'package:festora/services/usuario_service.dart';
 import 'package:festora/utils/TokenHelper.dart';
 import 'package:festora/widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/appBar/gradient_appbar.dart';
 import '../../widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
@@ -26,13 +28,14 @@ late String usuarioNome = 'Carregando...';
 class _HomePageState extends State<HomePage> {
   int selectedItem = 0;
 
-
+  
 
    @override
   void initState() {
     super.initState();
     carregarEventosAtivos();
     carregarUsuario();
+    verificarToken(context);
   }
 
   Future<void> carregarEventosAtivos() async {
@@ -41,6 +44,10 @@ class _HomePageState extends State<HomePage> {
       chas = eventos;
     });
 }
+
+  void verificarToken(BuildContext context) async {
+    TokenService.verificarToken(context);
+  }
 
   Future<void> carregarUsuario() async {
     final buscarUsuario = await UsuarioService().obterUsuario();
