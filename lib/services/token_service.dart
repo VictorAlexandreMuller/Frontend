@@ -41,7 +41,7 @@ class TokenService {
 
   static void _redirecionarParaLogin(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
-    if (currentRoute != 'LoginPage') {
+    if (currentRoute != LoginPage.name && currentRoute != RegisterPage.name) {
         context.goNamed(LoginPage.name);
     }
   }
