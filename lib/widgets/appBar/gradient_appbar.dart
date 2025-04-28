@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
+import 'package:festora/services/token_service.dart';
 
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String user;
@@ -60,9 +60,9 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.settings, color: Colors.black, size: 28),
               onSelected: (String result) {
                 if (result == 'config') {
-                  // configurações
+                  // configurações futuras
                 } else if (result == 'logout') {
-                  // logout
+                  TokenService.logout(context);
                 }
               },
               itemBuilder: (BuildContext context) => const [

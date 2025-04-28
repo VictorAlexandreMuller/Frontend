@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class SelectTipoChaDialog extends StatelessWidget {
   const SelectTipoChaDialog({super.key});
 
-  static Future<void> show(BuildContext context) {
-    return showDialog(
+  static Future<String?> show(BuildContext context) {
+    return showDialog<String>(
       context: context,
-      builder: (_) => const SelectTipoChaDialog(),
+      builder: (context) {
+        return const SelectTipoChaDialog();
+      },
     );
   }
 
@@ -20,8 +21,7 @@ class SelectTipoChaDialog extends StatelessWidget {
         children: [
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.pop(context);
-              context.push('/criar-evento', extra: 'Chá de Bebê');
+              Navigator.of(context).pop('Chá de Bebê'); // <-- retorna texto
             },
             icon: const Icon(Icons.child_care),
             label: const Text("Chá de Bebê"),
@@ -29,8 +29,7 @@ class SelectTipoChaDialog extends StatelessWidget {
           const SizedBox(height: 8),
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.pop(context);
-              context.push('/criar-evento', extra: 'Chá Revelação');
+              Navigator.of(context).pop('Chá Revelação');
             },
             icon: const Icon(Icons.cake),
             label: const Text("Chá Revelação"),
@@ -38,8 +37,7 @@ class SelectTipoChaDialog extends StatelessWidget {
           const SizedBox(height: 8),
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.pop(context);
-              context.push('/criar-evento', extra: 'Chá de Fraldas');
+              Navigator.of(context).pop('Chá de Fraldas');
             },
             icon: const Icon(Icons.baby_changing_station),
             label: const Text("Chá de Fraldas"),

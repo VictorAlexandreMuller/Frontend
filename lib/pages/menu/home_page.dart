@@ -9,6 +9,8 @@ import 'package:festora/widgets/appBar/gradient_appbar.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,17 +25,29 @@ class _HomePageState extends State<HomePage> {
   late u.UsuarioDetailsModel usuario;
   List<EventoModel> chas = [];
   late String usuarioNome = 'Carregando...';
+  Timer? _tokenTimer; // <-- adiciona isso
 
   @override
   void initState() {
     super.initState();
     _carregarDados();
+
+    // Timer que verifica token a cada 10 segundos
+    _tokenTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      TokenService.verificarToken(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    _tokenTimer?.cancel(); // cancela o timer quando sair da tela
+    super.dispose();
   }
 
   Future<void> _carregarDados() async {
     await carregarEventosAtivos();
     await carregarUsuario();
-    verificarToken(context);
+    TokenService.verificarToken(context);
   }
 
   Future<void> carregarEventosAtivos() async {
@@ -193,8 +207,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _mostrarEscolhaDeCha(BuildContext context) {
-    SelectTipoChaDialog.show(context);
+  void _mostrarEscolhaDeCha(BuildContext context) async {
+    final tipoEscolhido = await SelectTipoChaDialog.show(context);
+
+    if (tipoEscolhido != null) {
+      // Aguarda o usuário voltar da tela de criação de evento
+      final result =
+          await context.push<String>('/criar-evento', extra: tipoEscolhido);
+
+      // Se o usuário criou o evento (ou seja, deu sucesso)
+      if (result == 'evento_criado') {
+        await carregarEventosAtivos();
+      }
+    }
   }
 
   String _formatarData(String? isoDate) {

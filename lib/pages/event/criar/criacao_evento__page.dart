@@ -249,7 +249,7 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Evento criado com sucesso!')),
                             );
-                            Navigator.pop(context);
+                            Navigator.of(context).pop('evento_criado');
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Erro ao criar evento')),
