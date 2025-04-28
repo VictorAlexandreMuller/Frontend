@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 class InputLogin extends StatefulWidget {
   const InputLogin({
     super.key,
-    required this.label, required this.isPassword,
+    required this.label,
+    required this.isPassword,
+    this.controller,
   });
 
   final String label;
   final bool isPassword;
+  final TextEditingController? controller;
 
   @override
   _InputLoginState createState() => _InputLoginState();
@@ -31,28 +34,34 @@ class _InputLoginState extends State<InputLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      focusNode: _focusNode,
-      initialValue: '',
-      obscureText: widget.isPassword ? true : false,
-      enableSuggestions: widget.isPassword ? false : true,
-      autocorrect: widget.isPassword ? false : true,
-      style: TextStyle(
-        fontSize: 12, // Diminui o tamanho do texto digitado
-        color: Colors.white,
-        fontFamily: "Inter",
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3B3B3B), // cinza escuro atualizado
+        borderRadius: BorderRadius.circular(10),
       ),
-      decoration: InputDecoration(
-        labelText: widget.label,
-        labelStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
+      child: TextFormField(
+        controller: widget.controller,
+        focusNode: _focusNode,
+        obscureText: widget.isPassword,
+        enableSuggestions: !widget.isPassword,
+        autocorrect: !widget.isPassword,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.white, // texto branco
           fontFamily: "Inter",
-          letterSpacing: 3.0,
         ),
-        border: InputBorder.none,
-        filled: true,
-        fillColor: Colors.transparent,
+        decoration: InputDecoration(
+          labelText: widget.label,
+          labelStyle: const TextStyle(
+            color: Colors.white, // placeholder branco
+            fontSize: 10,
+            fontFamily: "Inter",
+            letterSpacing: 3.0,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          border: InputBorder.none,
+        ),
       ),
     );
   }

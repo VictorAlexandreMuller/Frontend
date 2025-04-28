@@ -1,10 +1,10 @@
+import 'package:festora/models/RegistroErroModel.dart';
+import 'package:festora/models/UsuarioRegisterModel';
 import 'package:festora/pages/login/login_page.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:festora/services/registro_service.dart';
+import 'package:festora/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../widgets/button/button_login.dart';
-import '../../widgets/input/input_login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -16,127 +16,221 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPage extends State<RegisterPage> {
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
+  bool _isLoading = false;
+  RegistroErroModel _registroErros = RegistroErroModel();
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarToken();
+  }
+
+  Future<void> _verificarToken() async {
+    TokenService.verificarToken(context);
+  }
+
+  Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+      _registroErros = RegistroErroModel();
+    });
+
+    final nome = _nomeController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final repeatPassword = _repeatPasswordController.text;
+
+    final (sucesso, erros) = await RegistroService().criarUsuario(
+      UsuarioRegisterModel(
+        nome: nome,
+        email: email,
+        password: password,
+        repeatPassword: repeatPassword,
+      ),
+    );
+
+    setState(() {
+      _isLoading = false;
+      _registroErros = erros;
+    });
+
+    if (sucesso == false) {
+      setState(() {});
+    } else if (sucesso == true) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        context.goNamed(LoginPage.name);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cadastro realizado com sucesso!'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      });
+    }
+  }
+
+  Widget errorLabel(String? error) {
+    return Visibility(
+      visible: error != null && error.isNotEmpty,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 5, left: 5),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            error!,
+            style: const TextStyle(
+              color: Colors.redAccent,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: Color(0xFFd6a467),
-        body: Container(child: homePage()),
-      ),
-    );
-  }
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-  Widget homePage() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pink.shade100,
+        title: const Text("",
+            style: TextStyle(color: Colors.pink)), // Título alterado
+        iconTheme: const IconThemeData(color: Colors.pink),
+        elevation: 0,
+        leading: IconButton(
+          // Adicionado a seta de voltar
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.goNamed(
+                LoginPage.name); // Navega de volta para a tela de Login
+          },
+        ),
+      ),
+      body: Stack(
         children: [
-          homeTitle(),
-          SizedBox(height: 50),
-          mainDivider(),
-          SizedBox(height: 20),
-          inputGroup(),
-          SizedBox(height: 25),
-          buttonGroup(),
-          SizedBox(height: 50),
-          mainDivider(),
-        ],
-      ),
-    );
-  }
-
-  Widget homeTitle() {
-    return Text(
-      "REGISTRO",
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontFamily: "Inder",
-        fontSize: 23,
-        fontWeight: FontWeight.w400,
-        color: Colors.white,
-        letterSpacing: 3.0,
-      ),
-    );
-  }
-
-  Widget mainDivider() {
-    return Divider(
-      height: 1,
-      thickness: 2,
-      color: Colors.white,
-      indent: 30,
-      endIndent: 30,
-    );
-  }
-
-  Widget inputGroup() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          InputLogin(
-            label: 'Nome',
-            isPassword: false,
-          ),
-          InputLogin(
-            label: 'E-mail',
-            isPassword: false,
-          ),
-          InputLogin(
-            label: 'Login',
-            isPassword: false,
-          ),
-          InputLogin(
-            label: 'Password',
-            isPassword: true,
-          ),
-          InputLogin(
-            label: 'Repeat Password',
-            isPassword: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buttonGroup() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ButtonLogin(
-                  text: 'Go Back',
-                  enabled: true,
-                  rounded: false,
-                  onPressed: () {
-                    context.goNamed(LoginPage.name);
-                  },
-                ),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFFCE4EC),
+                  Color(0xFFE0F7FA),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ButtonLogin(
-                  text: 'Help',
-                  enabled: true,
-                  rounded: false,
-                ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.08,
+                  vertical: screenHeight * 0.05),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "Cadastre-se!", // Título menor e mais direto
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: "PlayfairDisplay",
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink.shade400,
+                      letterSpacing: 1.5,
+                      shadows: const [
+                        Shadow(
+                          blurRadius: 2.0,
+                          color: Color.fromRGBO(248, 187, 208, 1),
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  TextFormField(
+                    controller: _nomeController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome Completo',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.person_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.nome),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'E-mail',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.email_outlined,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.email),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Senha',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.senha),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _repeatPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Senha',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.senhaRepitida),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink.shade300,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      textStyle: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600),
+                      elevation: 3,
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white))
+                        : const Text('Registrar'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        )
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
