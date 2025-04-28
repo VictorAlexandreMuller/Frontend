@@ -1,3 +1,4 @@
+import 'package:festora/pages/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,7 +32,7 @@ class _HelpPageState extends State<HelpPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.pop(),
+          onPressed: () => context.goNamed(LoginPage.name),
         ),
       ),
       body: Padding(
