@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> {
 
                   if (ehAutor) {
                     final result = await context.pushNamed<String>(
-                      EditarEventoPage.name,
+                      'criar-evento',
                       extra: evento,
                     );
 

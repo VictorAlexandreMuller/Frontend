@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:intl/intl.dart';
-import 'package:festora/widgets/containers/animated_gradient_border_container.dart'; // Importe o widget da borda animada
+import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 
 class CriarEventoPage extends StatefulWidget {
-  final String tipoEvento;
+  final String? tipoEvento;
+  final EventoModel? evento;
 
-  const CriarEventoPage({super.key, required this.tipoEvento});
+  const CriarEventoPage({super.key, this.tipoEvento, this.evento});
 
   static const String routeName = '/criar-evento';
 
@@ -31,11 +32,48 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
   DateTime? selectedDate;
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.evento != null) {
+      tituloController.text = widget.evento!.titulo ?? '';
+      descricaoController.text = widget.evento!.descricao ?? '';
+      localController.text = widget.evento!.local ?? '';
+      estadoController.text = widget.evento!.estado ?? '';
+      cidadeController.text = widget.evento!.cidade ?? '';
+      ruaController.text = widget.evento!.rua ?? '';
+      numeroController.text = widget.evento!.numero?.toString() ?? '';
+
+      if (widget.evento!.data != null && widget.evento!.data!.isNotEmpty) {
+        selectedDate = DateTime.tryParse(widget.evento!.data!);
+        if (selectedDate != null) {
+          dataController.text = DateFormat('dd/MM/yyyy').format(selectedDate!);
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    tituloController.dispose();
+    descricaoController.dispose();
+    dataController.dispose();
+    localController.dispose();
+    estadoController.dispose();
+    cidadeController.dispose();
+    ruaController.dispose();
+    numeroController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Criar ${widget.tipoEvento}"),
-        flexibleSpace: const AnimatedGradientAppBarBackground(), // Use o gradiente no fundo da AppBar
+        title: Text(widget.evento != null
+            ? "Editar Evento"
+            : "Criar ${widget.tipoEvento}"),
+        flexibleSpace: AnimatedGradientAppBarBackground(),
         titleTextStyle: const TextStyle(
           color: Colors.black87,
           fontSize: 20,
@@ -57,43 +95,13 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextFormField(
-                    controller: tituloController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título',
-                      border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().length < 10) {
-                        return 'O título deve ter no mínimo 10 caracteres.';
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildTextField(tituloController, 'Título', minLen: 10),
+                  const SizedBox(height: 15),
+                  _buildTextField(descricaoController, 'Descrição',
+                      minLen: 10, maxLines: 3),
                   const SizedBox(height: 15),
                   TextFormField(
-                    controller: descricaoController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
-                      border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().length < 10) {
-                        return 'A descrição deve ter no mínimo 10 caracteres.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    initialValue: widget.tipoEvento,
+                    initialValue: widget.evento?.tipo ?? widget.tipoEvento,
                     enabled: false,
                     decoration: const InputDecoration(
                       labelText: 'Tipo de Evento',
@@ -103,117 +111,43 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
                   const SizedBox(height: 15),
                   TextFormField(
                     controller: dataController,
+                    readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'Data',
                       border: OutlineInputBorder(),
                       suffixIcon: Icon(Icons.calendar_today),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                      ),
                     ),
-                    readOnly: true,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2100),
-                        builder: (BuildContext context, Widget? child) {
-                          return Theme(
-                            data: ThemeData.light().copyWith(
-                              primaryColor: const Color.fromRGBO(190, 237, 245, 1),
-                              hintColor: Colors.blueAccent,
-                              colorScheme: const ColorScheme.light(primary: Color.fromRGBO(190, 237, 245, 1)),
-                              buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
-                            ),
-                            child: child!,
-                          );
-                        },
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          selectedDate = picked;
-                          dataController.text = DateFormat('dd/MM/yyyy').format(picked);
-                        });
-                      }
-                    },
+                    onTap: _selecionarData,
                     validator: (value) {
                       if (selectedDate == null) {
-                        return 'Selecione uma data.';
-                      }
-                      if (selectedDate!.isBefore(DateTime.now())) {
-                        return 'A data deve estar no futuro.';
+                        return 'Selecione uma data válida.';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 15),
-                  TextFormField(
-                    controller: localController,
-                    decoration: const InputDecoration(
-                      labelText: 'Local',
-                      border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                      ),
-                    ),
-                  ),
+                  _buildTextField(localController, 'Local'),
                   const SizedBox(height: 15),
                   Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          controller: estadoController,
-                          decoration: const InputDecoration(
-                            labelText: 'Estado',
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                            ),
-                          ),
-                        ),
-                      ),
+                          child: _buildTextField(estadoController, 'Estado')),
                       const SizedBox(width: 15),
                       Expanded(
-                        child: TextFormField(
-                          controller: cidadeController,
-                          decoration: const InputDecoration(
-                            labelText: 'Cidade',
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                            ),
-                          ),
-                        ),
-                      ),
+                          child: _buildTextField(cidadeController, 'Cidade')),
                     ],
                   ),
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: ruaController,
-                          decoration: const InputDecoration(
-                            labelText: 'Rua',
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                            ),
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _buildTextField(ruaController, 'Rua')),
                       const SizedBox(width: 15),
                       Expanded(
-                        flex: 1,
                         child: TextFormField(
                           controller: numeroController,
                           decoration: const InputDecoration(
                             labelText: 'Número',
                             border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromRGBO(190, 237, 245, 1), width: 2.0),
-                            ),
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -227,44 +161,21 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
                   const SizedBox(height: 25),
                   AnimatedGradientBorderContainer(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          final numero = int.tryParse(numeroController.text) ?? 0;
-
-                          final evento = EventoModel(
-                            titulo: tituloController.text,
-                            descricao: descricaoController.text,
-                            tipo: widget.tipoEvento,
-                            data: selectedDate?.toIso8601String() ?? '',
-                            local: localController.text,
-                            estado: estadoController.text,
-                            cidade: cidadeController.text,
-                            rua: ruaController.text,
-                            numero: numero,
-                          );
-
-                          final sucesso = await EventoService().criarEvento(evento);
-
-                          if (sucesso) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Evento criado com sucesso!')),
-                            );
-                            Navigator.of(context).pop('evento_criado');
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Erro ao criar evento')),
-                            );
-                          }
-                        }
-                      },
+                      onPressed: _salvarEvento,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Fundo branco
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text("Salvar", style: TextStyle(fontSize: 16, color: Colors.black87)),
+                      child: Text(
+                        widget.evento != null
+                            ? "Atualizar Informações"
+                            : "Salvar",
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black87),
+                      ),
                     ),
                   ),
                 ],
@@ -275,6 +186,79 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
       ),
     );
   }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      {int minLen = 0, int maxLines = 1}) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (minLen > 0 && (value == null || value.trim().length < minLen)) {
+          return '$label deve ter no mínimo $minLen caracteres.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Future<void> _selecionarData() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+        dataController.text = DateFormat('dd/MM/yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _salvarEvento() async {
+    if (_formKey.currentState!.validate()) {
+      final evento = EventoModel(
+        id: widget.evento?.id,
+        titulo: tituloController.text,
+        descricao: descricaoController.text,
+        tipo: widget.tipoEvento ?? widget.evento?.tipo ?? '',
+        data: selectedDate?.toIso8601String() ?? '',
+        local: localController.text,
+        estado: estadoController.text,
+        cidade: cidadeController.text,
+        rua: ruaController.text,
+        numero: int.tryParse(numeroController.text) ?? 0,
+      );
+
+      bool sucesso;
+      if (widget.evento != null) {
+        sucesso = await EventoService().editarEvento(evento);
+      } else {
+        sucesso = await EventoService().criarEvento(evento);
+      }
+
+      if (sucesso) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(widget.evento != null
+                  ? 'Evento atualizado com sucesso!'
+                  : 'Evento criado com sucesso!')),
+        );
+        Navigator.of(context)
+            .pop(widget.evento != null ? 'evento_editado' : 'evento_criado');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao salvar evento')),
+        );
+      }
+    }
+  }
 }
 
 class AnimatedGradientAppBarBackground extends StatefulWidget {
@@ -284,19 +268,17 @@ class AnimatedGradientAppBarBackground extends StatefulWidget {
   State<AnimatedGradientAppBarBackground> createState() => _AnimatedGradientAppBarBackgroundState();
 }
 
-class _AnimatedGradientAppBarBackgroundState extends State<AnimatedGradientAppBarBackground>
-    with SingleTickerProviderStateMixin {
+class _AnimatedGradientAppBarBackgroundState extends State<AnimatedGradientAppBarBackground> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Color?> _colorAnimation;
 
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
-    )..repeat(reverse: true); // alterna azul ↔ rosa
+    )..repeat(reverse: true);
 
     _colorAnimation = ColorTween(
       begin: const Color.fromRGBO(190, 237, 245, 1), // azul bebê
@@ -318,7 +300,10 @@ class _AnimatedGradientAppBarBackgroundState extends State<AnimatedGradientAppBa
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_colorAnimation.value!, _colorAnimation.value!.withOpacity(0.8)],
+              colors: [
+                _colorAnimation.value!,
+                _colorAnimation.value!.withOpacity(0.8)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

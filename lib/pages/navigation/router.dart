@@ -40,10 +40,20 @@ abstract class AppRouter {
         path: '/criar-evento',
         name: 'criar-evento',
         builder: (context, state) {
-          final tipoEvento = state.extra as String;
-          return CriarEventoPage(tipoEvento: tipoEvento);
+          final extra = state.extra;
+          if (extra is EventoModel) {
+            return CriarEventoPage(evento: extra);
+          } else if (extra is String) {
+            return CriarEventoPage(tipoEvento: extra);
+          } else {
+            return const Scaffold(
+              body: Center(
+                  child: Text('Parâmetro inválido para criação de evento')),
+            );
+          }
         },
       ),
+
       GoRoute(
         path: '/editar-evento',
         name: EditarEventoPage.name,
