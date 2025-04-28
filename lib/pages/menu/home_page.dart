@@ -25,14 +25,13 @@ class _HomePageState extends State<HomePage> {
   late u.UsuarioDetailsModel usuario;
   List<EventoModel> chas = [];
   late String usuarioNome = 'Carregando...';
-  Timer? _tokenTimer; // <-- adiciona isso
+  Timer? _tokenTimer;
 
   @override
   void initState() {
     super.initState();
     _carregarDados();
 
-    // Timer que verifica token a cada 10 segundos
     _tokenTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       TokenService.verificarToken(context);
     });
@@ -40,7 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _tokenTimer?.cancel(); // cancela o timer quando sair da tela
+    _tokenTimer?.cancel();
     super.dispose();
   }
 
@@ -63,10 +62,6 @@ class _HomePageState extends State<HomePage> {
       usuario = buscarUsuario;
       usuarioNome = buscarUsuario.nome;
     });
-  }
-
-  void verificarToken(BuildContext context) {
-    TokenService.verificarToken(context);
   }
 
   void _onBNTapped(int index) {
@@ -114,40 +109,43 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.only(right: 12),
                           child: SizedBox(
                             width: 250,
-                            child: AnimatedGradientBorderContainer(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      evento.titulo ?? '',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.black,
+                            child: GestureDetector(
+                              onTap: () => _mostrarOpcoesEvento(context, evento),
+                              child: AnimatedGradientBorderContainer(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        evento.titulo ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      evento.descricao ?? '',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        evento.descricao ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      _formatarData(evento.data),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        _formatarData(evento.data),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -211,11 +209,8 @@ class _HomePageState extends State<HomePage> {
     final tipoEscolhido = await SelectTipoChaDialog.show(context);
 
     if (tipoEscolhido != null) {
-      // Aguarda o usuário voltar da tela de criação de evento
-      final result =
-          await context.push<String>('/criar-evento', extra: tipoEscolhido);
+      final result = await context.push<String>('/criar-evento', extra: tipoEscolhido);
 
-      // Se o usuário criou o evento (ou seja, deu sucesso)
       if (result == 'evento_criado') {
         await carregarEventosAtivos();
       }
@@ -230,5 +225,69 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       return isoDate;
     }
+  }
+
+  void _mostrarOpcoesEvento(BuildContext context, EventoModel evento) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit, color: Colors.blue),
+                title: const Text('Editar Evento'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/editar-evento', extra: evento);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Excluir Evento'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  bool confirmado = await _confirmarExclusao(context);
+                  if (confirmado) {
+                    await EventoService().deletarEvento(evento.id!);
+                    await carregarEventosAtivos();
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmarExclusao(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Você tem certeza que deseja excluir este evento?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
   }
 }

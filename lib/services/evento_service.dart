@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart'; // <-- para usar kIsWeb
 import 'package:festora/models/evento_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:festora/utils/TokenHelper.dart';
-import 'package:festora/config/api_config.dart'; // Se quiser usar a baseUrl centralizada
 
 class EventoService {
   static final String baseUrl = kIsWeb
@@ -54,6 +53,14 @@ class EventoService {
     } catch (e) {
       print('Erro na comunicação: $e');
       return [];
+    }
+  }
+
+  Future<void> deletarEvento(String id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/$id'));
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao excluir o evento');
     }
   }
 }

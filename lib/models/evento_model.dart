@@ -1,4 +1,5 @@
 class EventoModel {
+  final String? id; // <<< Adicionado
   final String titulo;
   final String descricao;
   final String tipo;
@@ -10,6 +11,7 @@ class EventoModel {
   final int numero;
 
   EventoModel({
+    this.id, // <<< Adicionado
     required this.titulo,
     required this.descricao,
     required this.tipo,
@@ -23,6 +25,7 @@ class EventoModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id, // <<< Adicionado
       'titulo': titulo,
       'descricao': descricao,
       'tipo': tipo,
@@ -39,6 +42,7 @@ class EventoModel {
     final endereco = json['endereco'];
 
     return EventoModel(
+      id: json['id'], // <<< Adicionado
       titulo: json['titulo'],
       descricao: json['descricao'],
       tipo: json['tipo'],
