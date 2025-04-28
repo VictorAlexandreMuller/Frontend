@@ -3,12 +3,8 @@ import 'package:festora/models/UsuarioRegisterModel';
 import 'package:festora/pages/login/login_page.dart';
 import 'package:festora/services/registro_service.dart';
 import 'package:festora/services/token_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../widgets/button/button_login.dart';
-import '../../widgets/input/input_login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -20,43 +16,36 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPage extends State<RegisterPage> {
-
-   @override
-  void initState() {
-    super.initState();
-    verificarToken(context);
-  }
-
-   void verificarToken(BuildContext context) async {
-    TokenService.verificarToken(context);
-  }
-
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _repeatPasswordController =TextEditingController();
-
-  String _nomeError = '';
-  String _emailError = '';
-  String _passwordError = '';
-  String _repeatPasswordError = '';
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
+  bool _isLoading = false;
+  RegistroErroModel _registroErros = RegistroErroModel();
 
   @override
-  void dispose() {
-    _nomeController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _repeatPasswordController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _verificarToken();
   }
 
-  void _register() async {
+  Future<void> _verificarToken() async {
+    TokenService.verificarToken(context);
+  }
+
+  Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+      _registroErros = RegistroErroModel();
+    });
+
     final nome = _nomeController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final repeatPassword = _repeatPasswordController.text;
 
-    (bool, RegistroErroModel) result = await RegistroService().criarUsuario(
+    final (sucesso, erros) = await RegistroService().criarUsuario(
       UsuarioRegisterModel(
         nome: nome,
         email: email,
@@ -65,18 +54,16 @@ class _RegisterPage extends State<RegisterPage> {
       ),
     );
 
-    if (result.$1 == false) {
-      setState(() {
-        _nomeError = result.$2.nome;
-        _emailError = result.$2.email;
-        _passwordError = result.$2.senha;
-        _repeatPasswordError = result.$2.senhaRepitida;
-      });
-    } else if (result.$1 == true) {
+    setState(() {
+      _isLoading = false;
+      _registroErros = erros;
+    });
+
+    if (sucesso == false) {
+      setState(() {});
+    } else if (sucesso == true) {
       Future.delayed(const Duration(milliseconds: 300), () {
-        // Redireciona para o login
         context.goNamed(LoginPage.name);
-        // Mostra o Snackbar após o redirecionamento
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Cadastro realizado com sucesso!'),
@@ -86,107 +73,18 @@ class _RegisterPage extends State<RegisterPage> {
       });
     }
   }
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFd6a467),
-        body: Container(child: homePage()),
-      ),
-    );
-  }
 
-  Widget homePage() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          homeTitle(),
-          const SizedBox(height: 50),
-          mainDivider(),
-          const SizedBox(height: 20),
-          inputGroup(),
-          const SizedBox(height: 25),
-          buttonGroup(),
-          const SizedBox(height: 50),
-          mainDivider(),
-        ],
-      ),
-    );
-  }
-
-  Widget homeTitle() {
-    return const Text(
-      "REGISTRO",
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontFamily: "Inder",
-        fontSize: 23,
-        fontWeight: FontWeight.w400,
-        color: Colors.white,
-        letterSpacing: 3.0,
-      ),
-    );
-  }
-
-  Widget mainDivider() {
-    return const Divider(
-      height: 1,
-      thickness: 2,
-      color: Colors.white,
-      indent: 30,
-      endIndent: 30,
-    );
-  }
-
-  Widget inputGroup() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          InputLogin(
-            label: 'Nome',
-            isPassword: false,
-            controller: _nomeController,
-          ),
-          errorLabel(_nomeError),
-          InputLogin(
-            label: 'E-mail',
-            isPassword: false,
-            controller: _emailController,
-          ),
-          errorLabel(_emailError),
-          InputLogin(
-            label: 'Password',
-            isPassword: true,
-            controller: _passwordController,
-          ),
-          errorLabel(_passwordError),
-          InputLogin(
-            label: 'Repeat Password',
-            isPassword: true,
-            controller: _repeatPasswordController,
-          ),
-          errorLabel(_repeatPasswordError),
-        ],
-      ),
-    );
-  }
-
-  Widget errorLabel(String error) {
+  Widget errorLabel(String? error) {
     return Visibility(
-      visible: error.isNotEmpty,
+      visible: error != null && error.isNotEmpty,
       child: Padding(
         padding: const EdgeInsets.only(top: 5, left: 5),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            error,
+            error!,
             style: const TextStyle(
-              color: Colors.red,
+              color: Colors.redAccent,
               fontSize: 12,
             ),
           ),
@@ -195,42 +93,144 @@ class _RegisterPage extends State<RegisterPage> {
     );
   }
 
-  Widget buttonGroup() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ButtonLogin(
-                  text: 'Go Back',
-                  enabled: true,
-                  rounded: false,
-                  onPressed: () {
-                    context.goNamed(LoginPage.name);
-                  },
-                ),
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pink.shade100,
+        title: const Text("",
+            style: TextStyle(color: Colors.pink)), // Título alterado
+        iconTheme: const IconThemeData(color: Colors.pink),
+        elevation: 0,
+        leading: IconButton(
+          // Adicionado a seta de voltar
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.goNamed(
+                LoginPage.name); // Navega de volta para a tela de Login
+          },
+        ),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFFCE4EC),
+                  Color(0xFFE0F7FA),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ButtonLogin(
-                  text: 'Registrar',
-                  enabled: true,
-                  rounded: false,
-                  onPressed: _register,
-                ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.08,
+                  vertical: screenHeight * 0.05),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "Cadastre-se!", // Título menor e mais direto
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: "PlayfairDisplay",
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink.shade400,
+                      letterSpacing: 1.5,
+                      shadows: const [
+                        Shadow(
+                          blurRadius: 2.0,
+                          color: Color.fromRGBO(248, 187, 208, 1),
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  TextFormField(
+                    controller: _nomeController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome Completo',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.person_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.nome),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'E-mail',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.email_outlined,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.email),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Senha',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.senha),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _repeatPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Senha',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color.fromRGBO(244, 143, 177, 1)),
+                    ),
+                  ),
+                  errorLabel(_registroErros.senhaRepitida),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink.shade300,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      textStyle: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600),
+                      elevation: 3,
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white))
+                        : const Text('Registrar'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        )
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
