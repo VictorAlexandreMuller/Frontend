@@ -6,9 +6,7 @@ import '../login/login_page.dart';
 import '../login/register_page.dart';
 import '../menu/home_page.dart';
 
-import '../../pages/event/criar/criacao_cha_fraldas_page.dart';
-import '../../pages/event/criar/criacao_cha_revelacao_page.dart';
-import '../../pages/event/criar/criacao_cha_bebe_page.dart';
+import '../event/criar/criacao_evento__page.dart';
 
 abstract class AppRouter {
   static GoRouter router = GoRouter(
@@ -37,19 +35,12 @@ abstract class AppRouter {
 
       // 🍵 ROTAS DE CRIAÇÃO DE CHÁS
       GoRoute(
-        path: CriarChaBebePage.routeName,
-        name: 'criar-cha-bebe',
-        builder: (context, state) => const CriarChaBebePage(),
-      ),
-      GoRoute(
-        path: CriarChaRevelacaoPage.routeName,
-        name: 'criar-cha-revelacao',
-        builder: (context, state) => const CriarChaRevelacaoPage(),
-      ),
-      GoRoute(
-        path: CriarChaFraldasPage.routeName,
-        name: 'criar-cha-fraldas',
-        builder: (context, state) => const CriarChaFraldasPage(),
+        path: '/criar-evento',
+        name: 'criar-evento',
+        builder: (context, state) {
+          final tipoEvento = state.extra as String;
+          return CriarEventoPage(tipoEvento: tipoEvento);
+        },
       ),
     ],
     // redirect: _guard,

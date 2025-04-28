@@ -21,7 +21,7 @@ class SelectTipoChaDialog extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
-              context.go('/criar-cha-bebe');
+              context.push('/criar-evento', extra: 'Chá de Bebê');
             },
             icon: const Icon(Icons.child_care),
             label: const Text("Chá de Bebê"),
@@ -30,7 +30,7 @@ class SelectTipoChaDialog extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
-              context.go('/criar-cha-revelacao');
+              context.push('/criar-evento', extra: 'Chá Revelação');
             },
             icon: const Icon(Icons.cake),
             label: const Text("Chá Revelação"),
@@ -39,7 +39,7 @@ class SelectTipoChaDialog extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
-              context.go('/criar-cha-fraldas');
+              context.push('/criar-evento', extra: 'Chá de Fraldas');
             },
             icon: const Icon(Icons.baby_changing_station),
             label: const Text("Chá de Fraldas"),

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:festora/config/api_config.dart';
@@ -11,22 +10,21 @@ class LoginService {
     final url = Uri.parse(
         '${ApiConfig.baseUrl}/usuarios/login'); // exemplo: http://localhost:8080/api/eventos
     final response = await http.post(
-      Uri.parse('$url'),
+      url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(login.toJson()),
     );
 
     if (response.statusCode == 200) {
-
       final responseBody = jsonDecode(response.body);
       final token = responseBody['token'];
 
-       SharedPreferences prefs = await SharedPreferences.getInstance();
-       prefs.setString('token', token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', token);
 
       return true;
-    }  
-    if(response.statusCode == 403) {
+    }
+    if (response.statusCode == 403) {
       return false;
     } else {
       return false;
