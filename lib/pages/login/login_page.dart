@@ -1,3 +1,4 @@
+import 'package:festora/pages/help/help_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -197,7 +198,9 @@ class _LoginPage extends State<LoginPage> {
                         const SizedBox(width: 15),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.goNamed(HelpPage.name);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue.shade100,
                               foregroundColor: Colors.blue.shade800,
