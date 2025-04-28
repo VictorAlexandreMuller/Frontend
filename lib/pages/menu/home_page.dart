@@ -1,3 +1,4 @@
+import 'package:festora/pages/event/editar/editar_evento_page.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model' as u;
@@ -110,12 +111,14 @@ class _HomePageState extends State<HomePage> {
                           child: SizedBox(
                             width: 250,
                             child: GestureDetector(
-                              onTap: () => _mostrarOpcoesEvento(context, evento),
+                              onTap: () =>
+                                  _mostrarOpcoesEvento(context, evento),
                               child: AnimatedGradientBorderContainer(
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         evento.titulo ?? '',
@@ -209,7 +212,8 @@ class _HomePageState extends State<HomePage> {
     final tipoEscolhido = await SelectTipoChaDialog.show(context);
 
     if (tipoEscolhido != null) {
-      final result = await context.push<String>('/criar-evento', extra: tipoEscolhido);
+      final result =
+          await context.push<String>('/criar-evento', extra: tipoEscolhido);
 
       if (result == 'evento_criado') {
         await carregarEventosAtivos();
@@ -242,9 +246,34 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.edit, color: Colors.blue),
                 title: const Text('Editar Evento'),
-                onTap: () {
+                onTap: () async {
                   Navigator.of(context).pop();
-                  context.push('/editar-evento', extra: evento);
+
+                  final ehAutor = await EventoService()
+                      .verificarSeUsuarioEhAutor(evento.id!);
+
+                  if (ehAutor) {
+                    final result = await context.pushNamed<String>(
+                      EditarEventoPage.name,
+                      extra: evento,
+                    );
+
+                    if (result == 'evento_editado') {
+                      await carregarEventosAtivos();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Evento atualizado com sucesso!'),
+                        ),
+                      );
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'Você não tem permissão para editar este evento.'),
+                      ),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -252,10 +281,28 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Excluir Evento'),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  bool confirmado = await _confirmarExclusao(context);
-                  if (confirmado) {
-                    await EventoService().deletarEvento(evento.id!);
-                    await carregarEventosAtivos();
+
+                  final ehAutor = await EventoService()
+                      .verificarSeUsuarioEhAutor(evento.id!);
+
+                  if (ehAutor) {
+                    bool confirmado = await _confirmarExclusao(context);
+                    if (confirmado) {
+                      await EventoService().desativarEvento(evento.id!);
+                      await carregarEventosAtivos();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Evento excluído com sucesso!'),
+                        ),
+                      );
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'Você não tem permissão para excluir este evento.'),
+                      ),
+                    );
                   }
                 },
               ),
@@ -268,26 +315,28 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _confirmarExclusao(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmar Exclusão'),
-          content: const Text('Você tem certeza que deseja excluir este evento?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              child: const Text('Excluir'),
-            ),
-          ],
-        );
-      },
-    ) ?? false;
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Confirmar Exclusão'),
+              content: const Text(
+                  'Você tem certeza que deseja excluir este evento?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('Excluir'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 }

@@ -44,7 +44,8 @@ class EventoService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes)); // utf8.decode para segurança
+        final List<dynamic> data = jsonDecode(
+            utf8.decode(response.bodyBytes)); // utf8.decode para segurança
         return data.map((e) => EventoModel.fromJson(e)).toList();
       } else {
         print('Erro ao listar eventos: ${response.body}');
@@ -56,11 +57,65 @@ class EventoService {
     }
   }
 
-  Future<void> deletarEvento(String id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/$id'));
+  Future<void> desativarEvento(String id) async {
+    final token = await TokenHelper.getToken();
+    final response = await http.put(
+      Uri.parse('$baseUrl/$id/desativar'), // <- endpoint novo
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode != 200) {
-      throw Exception('Erro ao excluir o evento');
+      throw Exception('Erro ao desativar o evento');
+    }
+  }
+
+  Future<bool> editarEvento(EventoModel evento) async {
+    final token = await TokenHelper.getToken();
+    try {
+      final response = await http.put(
+        Uri.parse('${baseUrl}/${evento.id}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(evento.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 403) {
+        throw Exception('Você não tem permissão para editar este evento.');
+      } else {
+        print('Erro ao editar evento: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro na comunicação: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> verificarSeUsuarioEhAutor(String eventoId) async {
+    final token = await TokenHelper.getToken();
+    try {
+      final response = await http.get(
+        Uri.parse('${EventoService.baseUrl}/$eventoId/verificar-autor'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.body.toLowerCase() == 'true';
+      } else {
+        print('Erro ao verificar autor: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro na comunicação: $e');
+      return false;
     }
   }
 }

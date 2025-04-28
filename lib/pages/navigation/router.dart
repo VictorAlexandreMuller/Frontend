@@ -1,3 +1,5 @@
+import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/event/editar/editar_evento_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,6 +42,14 @@ abstract class AppRouter {
         builder: (context, state) {
           final tipoEvento = state.extra as String;
           return CriarEventoPage(tipoEvento: tipoEvento);
+        },
+      ),
+      GoRoute(
+        path: '/editar-evento',
+        name: EditarEventoPage.name,
+        builder: (context, state) {
+          final evento = state.extra as EventoModel;
+          return EditarEventoPage(evento: evento);
         },
       ),
     ],
