@@ -44,10 +44,22 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
       ruaController.text = widget.evento!.rua ?? '';
       numeroController.text = widget.evento!.numero?.toString() ?? '';
 
-      if (widget.evento!.data != null && widget.evento!.data!.isNotEmpty) {
-        selectedDate = DateTime.tryParse(widget.evento!.data!);
-        if (selectedDate != null) {
-          dataController.text = DateFormat('dd/MM/yyyy').format(selectedDate!);
+      if (widget.evento?.data != null && widget.evento!.data!.isNotEmpty) {
+        try {
+          // Tenta primeiro como ISO
+          selectedDate = DateTime.tryParse(widget.evento!.data!);
+
+          // Se falhar, tenta como dd/MM/yyyy HH:mm
+          selectedDate ??=
+              DateFormat('dd/MM/yyyy HH:mm').parse(widget.evento!.data!);
+
+          if (selectedDate != null) {
+            dataController.text =
+                DateFormat('dd/MM/yyyy HH:mm').format(selectedDate!);
+          }
+        } catch (_) {
+          selectedDate = null;
+          dataController.text = '';
         }
       }
     }
@@ -206,18 +218,34 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
   }
 
   Future<void> _selecionarData() async {
-    final picked = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
 
-    if (picked != null) {
-      setState(() {
-        selectedDate = picked;
-        dataController.text = DateFormat('dd/MM/yyyy').format(picked);
-      });
+    if (pickedDate != null) {
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(selectedDate ?? DateTime.now()),
+      );
+
+      if (pickedTime != null) {
+        final combinedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        setState(() {
+          selectedDate = combinedDateTime;
+          dataController.text =
+              DateFormat('dd/MM/yyyy HH:mm').format(combinedDateTime);
+        });
+      }
     }
   }
 
@@ -265,10 +293,13 @@ class AnimatedGradientAppBarBackground extends StatefulWidget {
   const AnimatedGradientAppBarBackground({super.key});
 
   @override
-  State<AnimatedGradientAppBarBackground> createState() => _AnimatedGradientAppBarBackgroundState();
+  State<AnimatedGradientAppBarBackground> createState() =>
+      _AnimatedGradientAppBarBackgroundState();
 }
 
-class _AnimatedGradientAppBarBackgroundState extends State<AnimatedGradientAppBarBackground> with SingleTickerProviderStateMixin {
+class _AnimatedGradientAppBarBackgroundState
+    extends State<AnimatedGradientAppBarBackground>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Color?> _colorAnimation;
 
@@ -282,7 +313,7 @@ class _AnimatedGradientAppBarBackgroundState extends State<AnimatedGradientAppBa
 
     _colorAnimation = ColorTween(
       begin: const Color.fromRGBO(190, 237, 245, 1), // azul bebê
-      end: const Color.fromRGBO(240, 203, 218, 1),   // rosa claro
+      end: const Color.fromRGBO(240, 203, 218, 1), // rosa claro
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 

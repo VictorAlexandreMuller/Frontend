@@ -1,5 +1,4 @@
 import 'package:festora/models/evento_model.dart';
-import 'package:festora/pages/event/editar/editar_evento_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,8 +6,8 @@ import '../help/help_page.dart';
 import '../login/login_page.dart';
 import '../login/register_page.dart';
 import '../menu/home_page.dart';
-
-import '../event/criar/criacao_evento__page.dart';
+import '../event/criar_editar/criar_editar_evento__page.dart';
+import '../event/ver_evento/detalhes_evento_page.dart';
 
 abstract class AppRouter {
   static GoRouter router = GoRouter(
@@ -35,7 +34,7 @@ abstract class AppRouter {
         builder: (context, state) => const HomePage(),
       ),
 
-      // 🍵 ROTAS DE CRIAÇÃO DE CHÁS
+      // 🍵 CRIAÇÃO E EDIÇÃO UNIFICADAS
       GoRoute(
         path: '/criar-evento',
         name: 'criar-evento',
@@ -54,25 +53,21 @@ abstract class AppRouter {
         },
       ),
 
+      // 📄 DETALHES DO EVENTO
       GoRoute(
-        path: '/editar-evento',
-        name: EditarEventoPage.name,
+        path: '/detalhes-evento',
+        name: DetalhesEventoPage.routeName, // 'detalhes-evento'
         builder: (context, state) {
-          final evento = state.extra as EventoModel;
-          return EditarEventoPage(evento: evento);
+          final extra = state.extra;
+          if (extra is EventoModel) {
+            return DetalhesEventoPage(evento: extra);
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Evento não encontrado.')),
+            );
+          }
         },
       ),
     ],
-
-    // redirect: _guard,
   );
-
-  static String? _guard(BuildContext context, GoRouterState state) {
-    final publicLocations = [
-      '/login',
-      '/register',
-      '/help',
-    ];
-    return null;
-  }
 }
