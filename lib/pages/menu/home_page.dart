@@ -111,8 +111,8 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(13),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(13),
-                                  splashColor: Colors.blue.withOpacity(0.2),
-                                  highlightColor: Colors.black12,
+                                  splashColor: Colors.transparent,
+                                  highlightColor: const Color.fromARGB(255, 233, 245, 255),
                                   onTap: () {
                                     context.pushNamed(
                                       DetalhesEventoPage.routeName,
@@ -120,49 +120,65 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                   onLongPress: () {
+                                    // Durante o long press, aplicamos efeitos visualmente
+                                    setState(() {
+                                      // Ativa os efeitos temporariamente, se necessário
+                                    });
                                     _mostrarOpcoesEvento(context, evento);
                                   },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              evento.titulo ?? '',
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black,
+                                  onHighlightChanged: (isHighlighted) {
+                                    if (isHighlighted) {
+                                      // Aqui, você poderia acionar um efeito de highlight visual opcional,
+                                    }
+                                  },
+                                  splashFactory: InkSplash
+                                      .splashFactory, // permite efeito de splash no longPress
+                                  child: Ink(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                evento.titulo ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              evento.descricao ?? '',
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black54,
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                evento.descricao ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black54,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Text(
-                                          _formatarData(evento.data),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
+                                            ],
                                           ),
-                                        ),
-                                      ],
+                                          Text(
+                                            _formatarData(evento.data),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
