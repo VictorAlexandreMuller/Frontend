@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _carregarDados();
-
     _tokenTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       TokenService.verificarToken(context);
     });
@@ -106,59 +105,65 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.only(right: 12),
                           child: SizedBox(
                             width: 250,
-                            child: InkWell(
-                              onTap: () {
-                                context.pushNamed(DetalhesEventoPage.routeName,
-                                    extra: evento);
-                              },
-                              onLongPress: () {
-                                _mostrarOpcoesEvento(context, evento);
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              splashColor: Colors.blue.withOpacity(0.3),
-                              highlightColor: Colors.black12,
-                              child: AnimatedGradientBorderContainer(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            evento.titulo ?? '',
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color: Colors.black,
+                            child: AnimatedGradientBorderContainer(
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(13),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(13),
+                                  splashColor: Colors.blue.withOpacity(0.2),
+                                  highlightColor: Colors.black12,
+                                  onTap: () {
+                                    context.pushNamed(
+                                      DetalhesEventoPage.routeName,
+                                      extra: evento,
+                                    );
+                                  },
+                                  onLongPress: () {
+                                    _mostrarOpcoesEvento(context, evento);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              evento.titulo ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            evento.descricao ?? '',
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black54,
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              evento.descricao ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        _formatarData(evento.data),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                        Text(
+                                          _formatarData(evento.data),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -221,11 +226,9 @@ class _HomePageState extends State<HomePage> {
 
   void _mostrarEscolhaDeCha(BuildContext context) async {
     final tipoEscolhido = await SelectTipoChaDialog.show(context);
-
     if (tipoEscolhido != null) {
       final result =
           await context.push<String>('/criar-evento', extra: tipoEscolhido);
-
       if (result == 'evento_criado') {
         await carregarEventosAtivos();
       }
@@ -262,27 +265,21 @@ class _HomePageState extends State<HomePage> {
                   Future.delayed(Duration.zero, () async {
                     final ehAutor = await EventoService()
                         .verificarSeUsuarioEhAutor(evento.id!);
-
                     if (ehAutor) {
-                      final result = await context.pushNamed<String>(
-                        'criar-evento',
-                        extra: evento,
-                      );
-
+                      final result = await context
+                          .pushNamed<String>('criar-evento', extra: evento);
                       if (result == 'evento_editado') {
                         await carregarEventosAtivos();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Evento atualizado com sucesso!'),
-                          ),
+                              content: Text('Evento atualizado com sucesso!')),
                         );
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                              'Você não tem permissão para editar este evento.'),
-                        ),
+                            content: Text(
+                                'Você não tem permissão para editar este evento.')),
                       );
                     }
                   });
@@ -293,33 +290,24 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Excluir Evento'),
                 onTap: () async {
                   Navigator.of(context).pop();
-
-                  // Aguarda o próximo frame, garantindo que o modal seja removido da árvore
                   await Future.delayed(Duration(milliseconds: 200));
-
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
-
                   if (ehAutor) {
-                    final result = await context.pushNamed<String>(
-                      'criar-evento',
-                      extra: evento,
-                    );
-
+                    final result = await context
+                        .pushNamed<String>('criar-evento', extra: evento);
                     if (result == 'evento_editado') {
                       await carregarEventosAtivos();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Evento atualizado com sucesso!'),
-                        ),
+                            content: Text('Evento atualizado com sucesso!')),
                       );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            'Você não tem permissão para editar este evento.'),
-                      ),
+                          content: Text(
+                              'Você não tem permissão para editar este evento.')),
                     );
                   }
                 },
@@ -329,32 +317,5 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  Future<bool> _confirmarExclusao(BuildContext context) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('Confirmar Exclusão'),
-              content: const Text(
-                  'Você tem certeza que deseja excluir este evento?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text('Excluir'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
   }
 }
