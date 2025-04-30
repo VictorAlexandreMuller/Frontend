@@ -1,0 +1,2 @@
+C:/Users/Victor/Documents/Dev/Festora/Frontend/android/app/.cxx/Debug/t5s12252/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Victor/Documents/Dev/Festora/Frontend/android/app/.cxx/Debug/t5s12252/armeabi-v7a/CMakeFiles/rebuild_cache.dir
