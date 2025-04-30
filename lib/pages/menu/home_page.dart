@@ -112,7 +112,8 @@ class _HomePageState extends State<HomePage> {
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(13),
                                   splashColor: Colors.transparent,
-                                  highlightColor: const Color.fromARGB(255, 233, 245, 255),
+                                  highlightColor:
+                                      const Color.fromARGB(255, 233, 245, 255),
                                   onTap: () {
                                     context.pushNamed(
                                       DetalhesEventoPage.routeName,
@@ -306,24 +307,56 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Excluir Evento'),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  await Future.delayed(Duration(milliseconds: 200));
+
+                  Future<bool> _confirmarExclusao(BuildContext context) async {
+                    return await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Confirmar Exclusão'),
+                              content: const Text(
+                                  'Você tem certeza que deseja excluir este evento?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: const Text('Cancelar'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Excluir'),
+                                ),
+                              ],
+                            );
+                          },
+                        ) ??
+                        false;
+                  }
+
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
+
                   if (ehAutor) {
-                    final result = await context
-                        .pushNamed<String>('criar-evento', extra: evento);
-                    if (result == 'evento_editado') {
+                    bool confirmado = await _confirmarExclusao(context);
+                    if (confirmado) {
+                      await EventoService().desativarEvento(evento.id!);
                       await carregarEventosAtivos();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content: Text('Evento atualizado com sucesso!')),
+                          content: Text('Evento excluído com sucesso!'),
+                        ),
                       );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text(
-                              'Você não tem permissão para editar este evento.')),
+                        content: Text(
+                            'Você não tem permissão para excluir este evento.'),
+                      ),
                     );
                   }
                 },
