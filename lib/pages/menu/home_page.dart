@@ -1,10 +1,12 @@
+import 'package:festora/pages/menu/buscar_page.dart';
+import 'package:festora/pages/menu/listagem_page.dart';
+import 'package:festora/pages/menu/perfil_page.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
-import 'package:festora/models/usuario_details_model' as u;
+import 'package:festora/models/usuario_details_model.dart' as u;
 import 'package:festora/services/evento_service.dart';
 import 'package:festora/services/token_service.dart';
 import 'package:festora/services/usuario_service.dart';
-import 'package:festora/widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/appBar/gradient_appbar.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
@@ -22,7 +24,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int selectedItem = 0;
   late u.UsuarioDetailsModel usuario;
   List<EventoModel> chas = [];
   late String usuarioNome = 'Carregando...';
@@ -64,12 +65,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onBNTapped(int index) {
-    setState(() {
-      selectedItem = index;
-    });
-  }
-
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
@@ -82,11 +77,6 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F3F3),
         appBar: GradientAppBar(usuarioNome),
-        bottomNavigationBar: CustomBottomNavigation(
-          currentIndex: selectedItem,
-          onItemSelected: _onBNTapped,
-          onCreatePressed: () => _mostrarEscolhaDeCha(context),
-        ),
         body: RefreshIndicator(
           onRefresh: _carregarDados,
           child: Padding(
@@ -242,15 +232,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _mostrarEscolhaDeCha(BuildContext context) async {
-    final tipoEscolhido = await SelectTipoChaDialog.show(context);
-    if (tipoEscolhido != null) {
-      final result =
-          await context.push<String>('/criar-evento', extra: tipoEscolhido);
-      if (result == 'evento_criado') {
-        await carregarEventosAtivos();
-      }
+  final tipoEscolhido = await SelectTipoChaDialog.show(context);
+  if (tipoEscolhido != null) {
+    final result = await context.pushNamed<String>(
+      'criar-evento',
+      extra: tipoEscolhido,
+    );
+    if (result == 'evento_criado') {
+      await carregarEventosAtivos();
     }
   }
+}
 
   String _formatarData(String? isoDate) {
     if (isoDate == null) return '';
@@ -336,10 +328,8 @@ class _HomePageState extends State<HomePage> {
                         ) ??
                         false;
                   }
-
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
-
                   if (ehAutor) {
                     bool confirmado = await _confirmarExclusao(context);
                     if (confirmado) {

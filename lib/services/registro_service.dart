@@ -1,8 +1,7 @@
-  import 'dart:convert';
-
+import 'dart:convert';
 import 'package:festora/config/api_config.dart';
-import 'package:festora/models/RegistroErroModel.dart';
-import 'package:festora/models/UsuarioRegisterModel';
+import 'package:festora/models/registro_erro_model.dart';
+import 'package:festora/models/usuario_register_model.dart';
 import 'package:http/http.dart' as http;
 
 class RegistroService {

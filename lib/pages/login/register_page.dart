@@ -1,5 +1,5 @@
-import 'package:festora/models/RegistroErroModel.dart';
-import 'package:festora/models/UsuarioRegisterModel';
+import 'package:festora/models/registro_erro_model.dart';
+import 'package:festora/models/usuario_register_model.dart';
 import 'package:festora/pages/login/login_page.dart';
 import 'package:festora/services/registro_service.dart';
 import 'package:festora/services/token_service.dart';
