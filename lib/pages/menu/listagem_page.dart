@@ -9,20 +9,20 @@ class ListagemPage extends StatefulWidget {
   const ListagemPage({super.key});
 
   @override
-  State<ListagemPage> createState() => _ListagemPageState();
+  State<ListagemPage> createState() => ListagemPageState();
 }
 
-class _ListagemPageState extends State<ListagemPage> {
+class ListagemPageState extends State<ListagemPage> {
   List<EventoModel> _eventos = [];
   bool _carregando = true;
 
   @override
   void initState() {
     super.initState();
-    _carregarEventos();
+    carregarEventos();
   }
 
-  Future<void> _carregarEventos() async {
+  Future<void> carregarEventos() async {
     final eventos = await EventoService().listarEventosAtivos();
     setState(() {
       _eventos = eventos;

@@ -20,12 +20,17 @@ class _HomeSectionPageState extends State<HomeSectionPage> {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    BuscarPage(),
-    ListagemPage(),
-    PerfilPage(),
-  ];
+  // Agora as keys estão acessíveis aqui
+  final GlobalKey<HomePageState> _homeKey = GlobalKey<HomePageState>();
+  final GlobalKey<ListagemPageState> _listagemKey =
+      GlobalKey<ListagemPageState>();
+
+  List<Widget> get _pages => [
+        HomePage(key: _homeKey),
+        const BuscarPage(),
+        ListagemPage(key: _listagemKey),
+        const PerfilPage(),
+      ];
 
   @override
   void initState() {
@@ -69,13 +74,13 @@ class _HomeSectionPageState extends State<HomeSectionPage> {
         currentIndex: _currentIndex,
         onItemSelected: _onItemTapped,
         onCreatePressed: () {
-          _mostrarEscolhaDeCha(context); // <-- Aqui
+          _mostrarEscolhaDeCha(context);
         },
       ),
     );
   }
 
-  Future<void> _mostrarEscolhaDeCha(BuildContext context) async {
+  void _mostrarEscolhaDeCha(BuildContext context) async {
     final tipoEscolhido = await SelectTipoChaDialog.show(context);
     if (tipoEscolhido != null) {
       final result = await GoRouter.of(context).pushNamed<String>(
@@ -84,7 +89,8 @@ class _HomeSectionPageState extends State<HomeSectionPage> {
       );
 
       if (result == 'evento_criado') {
-        // Opcional: você pode atualizar o estado, como recarregar a HomePage se necessário
+        _homeKey.currentState?.carregarEventosAtivos();
+        _listagemKey.currentState?.carregarEventos();
       }
     }
   }

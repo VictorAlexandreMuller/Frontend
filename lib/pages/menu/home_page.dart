@@ -1,6 +1,3 @@
-import 'package:festora/pages/menu/buscar_page.dart';
-import 'package:festora/pages/menu/listagem_page.dart';
-import 'package:festora/pages/menu/perfil_page.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model.dart' as u;
@@ -20,10 +17,10 @@ class HomePage extends StatefulWidget {
   static const String name = 'HomePage';
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   late u.UsuarioDetailsModel usuario;
   List<EventoModel> chas = [];
   late String usuarioNome = 'Carregando...';
@@ -192,9 +189,8 @@ class _HomePageState extends State<HomePage> {
                     children: funcoes.map((item) {
                       return GestureDetector(
                         onTap: () {
-                          if (item['label'] == 'Criar Evento') {
-                            _mostrarEscolhaDeCha(context);
-                          }
+                          GoRouter.of(context)
+                              .go('/menu'); // opcional, só se precisar voltar
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -230,19 +226,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  void _mostrarEscolhaDeCha(BuildContext context) async {
-  final tipoEscolhido = await SelectTipoChaDialog.show(context);
-  if (tipoEscolhido != null) {
-    final result = await context.pushNamed<String>(
-      'criar-evento',
-      extra: tipoEscolhido,
-    );
-    if (result == 'evento_criado') {
-      await carregarEventosAtivos();
-    }
-  }
-}
 
   String _formatarData(String? isoDate) {
     if (isoDate == null) return '';
@@ -328,6 +311,7 @@ class _HomePageState extends State<HomePage> {
                         ) ??
                         false;
                   }
+
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
                   if (ehAutor) {
