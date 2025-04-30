@@ -1,4 +1,3 @@
-import 'package:festora/pages/event/editar/editar_evento_page.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model' as u;
@@ -12,6 +11,7 @@ import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
+import 'package:festora/pages/event/ver_evento/detalhes_evento_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _carregarDados();
-
     _tokenTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       TokenService.verificarToken(context);
     });
@@ -74,10 +73,6 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
-    {"icon": Icons.chat, "label": "Chat"},
-    {"icon": Icons.list, "label": "Presentes"},
-    {"icon": Icons.map, "label": "Localização"},
-    {"icon": Icons.notifications, "label": "Notificações"},
   ];
 
   @override
@@ -100,7 +95,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 if (chas.isNotEmpty)
                   SizedBox(
-                    height: 180,
+                    height: 150,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: chas.length,
@@ -110,44 +105,65 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.only(right: 12),
                           child: SizedBox(
                             width: 250,
-                            child: GestureDetector(
-                              onTap: () =>
-                                  _mostrarOpcoesEvento(context, evento),
-                              child: AnimatedGradientBorderContainer(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        evento.titulo ?? '',
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.black,
+                            child: AnimatedGradientBorderContainer(
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(13),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(13),
+                                  splashColor: Colors.blue.withOpacity(0.2),
+                                  highlightColor: Colors.black12,
+                                  onTap: () {
+                                    context.pushNamed(
+                                      DetalhesEventoPage.routeName,
+                                      extra: evento,
+                                    );
+                                  },
+                                  onLongPress: () {
+                                    _mostrarOpcoesEvento(context, evento);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              evento.titulo ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              evento.descricao ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        evento.descricao ?? '',
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
+                                        Text(
+                                          _formatarData(evento.data),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        _formatarData(evento.data),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -210,11 +226,9 @@ class _HomePageState extends State<HomePage> {
 
   void _mostrarEscolhaDeCha(BuildContext context) async {
     final tipoEscolhido = await SelectTipoChaDialog.show(context);
-
     if (tipoEscolhido != null) {
       final result =
           await context.push<String>('/criar-evento', extra: tipoEscolhido);
-
       if (result == 'evento_criado') {
         await carregarEventosAtivos();
       }
@@ -225,7 +239,7 @@ class _HomePageState extends State<HomePage> {
     if (isoDate == null) return '';
     try {
       final date = DateTime.parse(isoDate);
-      return DateFormat('dd/MM/yyyy').format(date);
+      return DateFormat('dd/MM/yyyy HH:mm').format(date);
     } catch (e) {
       return isoDate;
     }
@@ -246,34 +260,29 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.edit, color: Colors.blue),
                 title: const Text('Editar Evento'),
-                onTap: () async {
+                onTap: () {
                   Navigator.of(context).pop();
-
-                  final ehAutor = await EventoService()
-                      .verificarSeUsuarioEhAutor(evento.id!);
-
-                  if (ehAutor) {
-                    final result = await context.pushNamed<String>(
-                      EditarEventoPage.name,
-                      extra: evento,
-                    );
-
-                    if (result == 'evento_editado') {
-                      await carregarEventosAtivos();
+                  Future.delayed(Duration.zero, () async {
+                    final ehAutor = await EventoService()
+                        .verificarSeUsuarioEhAutor(evento.id!);
+                    if (ehAutor) {
+                      final result = await context
+                          .pushNamed<String>('criar-evento', extra: evento);
+                      if (result == 'evento_editado') {
+                        await carregarEventosAtivos();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Evento atualizado com sucesso!')),
+                        );
+                      }
+                    } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Evento atualizado com sucesso!'),
-                        ),
+                            content: Text(
+                                'Você não tem permissão para editar este evento.')),
                       );
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Você não tem permissão para editar este evento.'),
-                      ),
-                    );
-                  }
+                  });
                 },
               ),
               ListTile(
@@ -281,27 +290,24 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Excluir Evento'),
                 onTap: () async {
                   Navigator.of(context).pop();
-
+                  await Future.delayed(Duration(milliseconds: 200));
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
-
                   if (ehAutor) {
-                    bool confirmado = await _confirmarExclusao(context);
-                    if (confirmado) {
-                      await EventoService().desativarEvento(evento.id!);
+                    final result = await context
+                        .pushNamed<String>('criar-evento', extra: evento);
+                    if (result == 'evento_editado') {
                       await carregarEventosAtivos();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Evento excluído com sucesso!'),
-                        ),
+                            content: Text('Evento atualizado com sucesso!')),
                       );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            'Você não tem permissão para excluir este evento.'),
-                      ),
+                          content: Text(
+                              'Você não tem permissão para editar este evento.')),
                     );
                   }
                 },
@@ -311,32 +317,5 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  Future<bool> _confirmarExclusao(BuildContext context) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('Confirmar Exclusão'),
-              content: const Text(
-                  'Você tem certeza que deseja excluir este evento?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text('Excluir'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
   }
 }
