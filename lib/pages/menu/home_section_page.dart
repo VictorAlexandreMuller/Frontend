@@ -26,7 +26,9 @@ class _HomeSectionPageState extends State<HomeSectionPage> {
       GlobalKey<ListagemPageState>();
 
   List<Widget> get _pages => [
-        HomePage(key: _homeKey),
+        HomePage(
+            key: _homeKey,
+            onCreatePressed: () => _mostrarEscolhaDeCha(context)),
         const BuscarPage(),
         ListagemPage(key: _listagemKey),
         const PerfilPage(),

@@ -6,18 +6,18 @@ import 'package:festora/services/token_service.dart';
 import 'package:festora/services/usuario_service.dart';
 import 'package:festora/widgets/appBar/gradient_appbar.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
-import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:festora/pages/event/ver_evento/detalhes_evento_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onCreatePressed});
   static const String name = 'HomePage';
 
   @override
   State<HomePage> createState() => HomePageState();
+  final VoidCallback? onCreatePressed;
 }
 
 class HomePageState extends State<HomePage> {
@@ -189,8 +189,11 @@ class HomePageState extends State<HomePage> {
                     children: funcoes.map((item) {
                       return GestureDetector(
                         onTap: () {
-                          GoRouter.of(context)
-                              .go('/menu'); // opcional, só se precisar voltar
+                          if (item['label'] == 'Criar Evento') {
+                            widget.onCreatePressed?.call();
+                          } else if (item['label'] == 'Agenda') {
+                            GoRouter.of(context).pushNamed('agenda');
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(

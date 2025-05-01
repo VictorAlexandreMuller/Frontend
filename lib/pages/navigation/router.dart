@@ -1,4 +1,5 @@
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/funcionalidades/calendario_page.dart';
 import 'package:festora/pages/menu/buscar_page.dart';
 import 'package:festora/pages/menu/listagem_page.dart';
 import 'package:festora/pages/menu/perfil_page.dart';
@@ -69,6 +70,11 @@ abstract class AppRouter {
             );
           }
         },
+      ),
+      GoRoute(
+        path: '/agenda',
+        name: 'agenda',
+        builder: (context, state) => const AgendaPage(),
       ),
     ],
   );
