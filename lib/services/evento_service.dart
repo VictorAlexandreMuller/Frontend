@@ -58,19 +58,22 @@ class EventoService {
     }
   }
 
-  Future<void> desativarEvento(String id) async {
-    final token = await TokenHelper.getToken();
-    final response = await http.put(
-      Uri.parse('$baseUrl/$id/desativar'), // <- endpoint novo
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+  Future<bool> desativarEvento(String id) async {
+  final token = await TokenHelper.getToken();
+  final response = await http.put(
+    Uri.parse('$baseUrl/$id/desativar'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
 
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao desativar o evento');
-    }
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
   }
+}
+
 
   Future<bool> editarEvento(EventoModel evento) async {
     final token = await TokenHelper.getToken();

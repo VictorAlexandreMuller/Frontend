@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/services/evento_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class ListagemPage extends StatefulWidget {
@@ -92,12 +93,94 @@ class ListagemPageState extends State<ListagemPage> {
                                 color: Colors.black45,
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.blue),
+                                  label: const Text('Editar'),
+                                  onPressed: () async {
+                                    final result = await context
+                                        .pushNamed<String>('criar-evento',
+                                            extra: evento);
+
+                                    if (result == 'evento_editado') {
+                                      await carregarEventos();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Evento atualizado com sucesso!')),
+                                      );
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                TextButton.icon(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  label: const Text('Excluir'),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Excluir Evento'),
+                                            content: const Text(
+                                                'Tem certeza que deseja excluir este evento?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(false),
+                                                child: const Text('Cancelar'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(true),
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.red),
+                                                child: const Text('Excluir'),
+                                              ),
+                                            ],
+                                          ),
+                                        ) ??
+                                        false;
+
+                                    if (confirm) {
+                                      final sucesso = await EventoService()
+                                          .desativarEvento(evento.id!);
+                                      if (sucesso) {
+                                        await carregarEventos();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Evento excluído com sucesso.'),
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text('Erro ao excluir evento.'),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       ),
                     );
-                  },
-                ),
+                  }),
     );
   }
 }
