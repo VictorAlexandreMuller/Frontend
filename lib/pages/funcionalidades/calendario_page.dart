@@ -34,13 +34,12 @@ class _AgendaPageState extends State<AgendaPage> {
     }
     final formatador = DateFormat('dd/MM/yyyy HH:mm');
     for (var evento in eventos) {
-      final data = formatador.parse(evento.data!); // ✅ CORRETO
+      final data = formatador.parse(evento.data!);
       final dia = DateTime.utc(data.year, data.month, data.day);
       mapa[dia] = [...(mapa[dia] ?? []), evento];
     }
 
     final diaAtual = DateTime.utc(
-      // <- UTC aqui também!
       diaSelecionado.year,
       diaSelecionado.month,
       diaSelecionado.day,
@@ -57,20 +56,91 @@ class _AgendaPageState extends State<AgendaPage> {
     return eventosPorData[diaLocal] ?? [];
   }
 
+  Widget _buildLegendaItem(Color cor, String texto) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: cor,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          texto,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F3F3),
       appBar: AppBar(
-        title: const Text('Agenda de Eventos'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         backgroundColor: Colors.pinkAccent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            // Setinha (mantida funcional)
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            // Espaço para centralizar o título
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Agenda de Eventos',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            // Espaço invisível para compensar a seta (mesma largura da seta)
+            const SizedBox(width: 48),
+          ],
+        ),
       ),
       body: Column(
         children: [
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildLegendaItem(const Color(0xFF04FF00), "Seus eventos"),
+                  _buildLegendaItem(
+                      const Color(0xFF78003C), "Eventos de amigos"),
+                ],
+              ),
+            ),
+          ),
           TableCalendar<EventoModel>(
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2100, 12, 31),
@@ -87,7 +157,8 @@ class _AgendaPageState extends State<AgendaPage> {
                 shape: BoxShape.circle,
               ),
               markerDecoration: BoxDecoration(
-                color: Colors.transparent, // removemos o marcador padrão
+                color: Colors.pinkAccent,
+                shape: BoxShape.circle,
               ),
             ),
             selectedDayPredicate: (day) => isSameDay(day, diaSelecionado),
@@ -97,35 +168,35 @@ class _AgendaPageState extends State<AgendaPage> {
                 eventosSelecionados = _obterEventosDoDia(selectedDay);
               });
             },
-            calendarBuilders: CalendarBuilders(
-              markerBuilder: (context, date, eventos) {
-                if (eventos.isEmpty) return const SizedBox();
+            calendarBuilders:
+                CalendarBuilders(markerBuilder: (context, date, eventos) {
+              if (eventos.isEmpty) return const SizedBox();
 
-                return Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: eventos
-                        .take(2)
-                        .map((evento) => Text(
-                              (evento as EventoModel)
-                                      .titulo
-                                      ?.split(' ')
-                                      .first ??
-                                  '',
-                              style: const TextStyle(
-                                fontSize: 9,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ))
-                        .toList(),
+              return Positioned(
+                bottom: 2, // distância da parte inferior da célula
+                child: Container(
+                  width: 10, // largura da bolinha
+                  height: 10, // altura da bolinha
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF04FF00), // cor da bolinha
+                    shape: BoxShape.circle, // formato circular
+                    border: Border.all(
+                      // borda opcional
+                      color: Colors.white,
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      // sombra opcional
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -135,18 +206,14 @@ class _AgendaPageState extends State<AgendaPage> {
                     itemCount: eventosSelecionados.length,
                     itemBuilder: (context, index) {
                       final evento = eventosSelecionados[index];
+                      final formatador = DateFormat('dd/MM/yyyy HH:mm');
+                      final data = formatador.parse(evento.data!);
                       return ListTile(
                         title: Text(evento.titulo ?? 'Sem título'),
-                        subtitle: Text(
-                          DateFormat('dd/MM/yyyy HH:mm')
-                              .format(DateTime.parse(evento.data!)),
-                        ),
+                        subtitle: Text(formatador.format(data)),
                         leading:
                             const Icon(Icons.event_note, color: Colors.pink),
                         onTap: () {
-                          Navigator.of(context)
-                              .pop(); // opcional: volta se estiver em bottomsheet
-                          // Abrir a tela de detalhes
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => DetalhesEventoPage(evento: evento),
                           ));
