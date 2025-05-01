@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:festora/models/criar_evento_erro_model.dart';
 import 'package:flutter/foundation.dart'; // <-- para usar kIsWeb
 import 'package:festora/models/evento_model.dart';
 import 'package:http/http.dart' as http;
@@ -10,29 +11,34 @@ class EventoService {
       // : 'http://192.168.15.75:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR PC
       : 'http://192.168.71.222:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR NOTEBOOK
 
-  Future<bool> criarEvento(EventoModel evento) async {
-    final token = await TokenHelper.getToken();
-    try {
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(evento.toJson()),
-      );
+ Future<(bool, EventoErroModel)> criarEvento(EventoModel evento) async {
+  final token = await TokenHelper.getToken();
+  try {
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(evento.toJson()),
+    );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return true;
-      } else {
-        print('Erro ao criar evento: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Erro na comunicação: $e');
-      return false;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return (true, EventoErroModel());
+    } else if (response.statusCode == 400) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> responseData = jsonDecode(decodedBody);
+      final errors = EventoErroModel.fromJson(responseData);
+      return (false, errors);
+    } else {
+      // Retorno genérico para outros códigos de status
+      return (false, EventoErroModel());
     }
+  } catch (e) {
+    print('Erro na comunicação: $e');
+    return (false, EventoErroModel());
   }
+}
 
   Future<List<EventoModel>> listarEventosAtivos() async {
     final token = await TokenHelper.getToken();
@@ -72,7 +78,7 @@ class EventoService {
     }
   }
 
-  Future<bool> editarEvento(EventoModel evento) async {
+  Future<(bool, EventoErroModel)> editarEvento(EventoModel evento) async {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.put(
@@ -84,18 +90,21 @@ class EventoService {
         body: jsonEncode(evento.toJson()),
       );
 
-      if (response.statusCode == 200) {
-        return true;
-      } else if (response.statusCode == 403) {
-        throw Exception('Você não tem permissão para editar este evento.');
-      } else {
-        print('Erro ao editar evento: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Erro na comunicação: $e');
-      rethrow;
+      if (response.statusCode == 201 || response.statusCode == 200) {
+      return (true, EventoErroModel());
+    } else if (response.statusCode == 400) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> responseData = jsonDecode(decodedBody);
+      final errors = EventoErroModel.fromJson(responseData);
+      return (false, errors);
+    } else {
+      // Retorno genérico para outros códigos de status
+      return (false, EventoErroModel());
     }
+  } catch (e) {
+    print('Erro na comunicação: $e');
+    return (false, EventoErroModel());
+  }
   }
 
   Future<bool> verificarSeUsuarioEhAutor(String eventoId) async {

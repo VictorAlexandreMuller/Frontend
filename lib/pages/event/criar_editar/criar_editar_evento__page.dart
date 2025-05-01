@@ -1,3 +1,4 @@
+import 'package:festora/models/criar_evento_erro_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:festora/models/evento_model.dart';
@@ -31,6 +32,8 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
 
   DateTime? selectedDate;
 
+  EventoErroModel _eventoErroModel = EventoErroModel();
+
   @override
   void initState() {
     super.initState();
@@ -46,10 +49,7 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
 
       if (widget.evento?.data != null && widget.evento!.data!.isNotEmpty) {
         try {
-          // Tenta primeiro como ISO
           selectedDate = DateTime.tryParse(widget.evento!.data!);
-
-          // Se falhar, tenta como dd/MM/yyyy HH:mm
           selectedDate ??=
               DateFormat('dd/MM/yyyy HH:mm').parse(widget.evento!.data!);
 
@@ -107,10 +107,20 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildTextField(tituloController, 'Título', minLen: 10),
+                  _buildTextField(
+                    tituloController,
+                    'Título',
+                    minLen: 10,
+                    erroTexto: _eventoErroModel.titulo,
+                  ),
                   const SizedBox(height: 15),
-                  _buildTextField(descricaoController, 'Descrição',
-                      minLen: 10, maxLines: 3),
+                  _buildTextField(
+                    descricaoController,
+                    'Descrição',
+                    minLen: 10,
+                    maxLines: 3,
+                    erroTexto: _eventoErroModel.descricao,
+                  ),
                   const SizedBox(height: 15),
                   TextFormField(
                     initialValue: widget.evento?.tipo ?? widget.tipoEvento,
@@ -124,42 +134,58 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
                   TextFormField(
                     controller: dataController,
                     readOnly: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Data',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.calendar_today),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: const Icon(Icons.calendar_today),
+                      errorText: _eventoErroModel.data,
                     ),
                     onTap: _selecionarData,
-                    validator: (value) {
-                      if (selectedDate == null) {
-                        return 'Selecione uma data válida.';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 15),
-                  _buildTextField(localController, 'Local'),
+                  _buildTextField(
+                    localController,
+                    'Local',
+                    erroTexto: _eventoErroModel.local,
+                  ),
                   const SizedBox(height: 15),
                   Row(
                     children: [
                       Expanded(
-                          child: _buildTextField(estadoController, 'Estado')),
+                        child: _buildTextField(
+                          estadoController,
+                          'Estado',
+                          erroTexto: _eventoErroModel.estado,
+                        ),
+                      ),
                       const SizedBox(width: 15),
                       Expanded(
-                          child: _buildTextField(cidadeController, 'Cidade')),
+                        child: _buildTextField(
+                          cidadeController,
+                          'Cidade',
+                          erroTexto: _eventoErroModel.cidade,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      Expanded(child: _buildTextField(ruaController, 'Rua')),
+                      Expanded(
+                        child: _buildTextField(
+                          ruaController,
+                          'Rua',
+                          erroTexto: _eventoErroModel.rua,
+                        ),
+                      ),
                       const SizedBox(width: 15),
                       Expanded(
                         child: TextFormField(
                           controller: numeroController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Número',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            errorText: _eventoErroModel.numero,
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -199,21 +225,21 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      {int minLen = 0, int maxLines = 1}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    int minLen = 0,
+    int maxLines = 1,
+    String? erroTexto,
+  }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        errorText: erroTexto,
       ),
-      validator: (value) {
-        if (minLen > 0 && (value == null || value.trim().length < minLen)) {
-          return '$label deve ter no mínimo $minLen caracteres.';
-        }
-        return null;
-      },
     );
   }
 
@@ -264,14 +290,15 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
         numero: int.tryParse(numeroController.text) ?? 0,
       );
 
-      bool sucesso;
+      (bool, EventoErroModel) response;
+
       if (widget.evento != null) {
-        sucesso = await EventoService().editarEvento(evento);
+        response = await EventoService().editarEvento(evento);
       } else {
-        sucesso = await EventoService().criarEvento(evento);
+        response = await EventoService().criarEvento(evento);
       }
 
-      if (sucesso) {
+      if (response.$1) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(widget.evento != null
@@ -281,9 +308,15 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
         Navigator.of(context)
             .pop(widget.evento != null ? 'evento_editado' : 'evento_criado');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao salvar evento')),
-        );
+        if (response.$2.temErros()) {
+          setState(() {
+            _eventoErroModel = response.$2;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erro ao salvar evento')),
+          );
+        }
       }
     }
   }
@@ -312,8 +345,8 @@ class _AnimatedGradientAppBarBackgroundState
     )..repeat(reverse: true);
 
     _colorAnimation = ColorTween(
-      begin: const Color.fromRGBO(190, 237, 245, 1), // azul bebê
-      end: const Color.fromRGBO(240, 203, 218, 1), // rosa claro
+      begin: const Color.fromRGBO(190, 237, 245, 1),
+      end: const Color.fromRGBO(240, 203, 218, 1),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
