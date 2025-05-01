@@ -147,9 +147,11 @@ class DetalhesEventoPage extends StatelessWidget {
               crossAxisSpacing: 16,
               childAspectRatio: 1,
               children: [
-                _buildIconTile(Icons.chat, 'Chat'),
-                _buildIconTile(Icons.list, 'Presentes'),
-                _buildIconTile(Icons.map, 'Localização'),
+                _buildIconTile(Icons.chat, 'Chat', iconColor: Colors.blue),
+                _buildIconTile(Icons.list, 'Presentes',
+                    iconColor: const Color.fromARGB(255, 0, 202, 252)),
+                _buildIconTile(Icons.map, 'Localização',
+                    iconColor: const Color.fromARGB(255, 56, 192, 61)),
               ],
             ),
           ],
@@ -182,7 +184,8 @@ class DetalhesEventoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIconTile(IconData icon, String label) {
+  Widget _buildIconTile(IconData icon, String label,
+      {Color iconColor = Colors.black}) {
     return GestureDetector(
       onTap: () {
         // ação ao clicar no item
@@ -196,7 +199,7 @@ class DetalhesEventoPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 30, color: Colors.black),
+            Icon(icon, size: 30, color: iconColor),
             const SizedBox(height: 8),
             Text(
               label,
