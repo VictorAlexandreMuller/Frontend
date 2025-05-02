@@ -33,17 +33,48 @@ class DetalhesEventoPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      evento.titulo,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      evento.descricao,
-                      style: const TextStyle(fontSize: 16),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                evento.titulo,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                evento.descricao,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+  children: [
+    IconButton(
+      icon: const Icon(Icons.person_add_alt_1, color: Colors.purple),
+      tooltip: 'Convidar participantes',
+      onPressed: () {
+  context.pushNamed(
+    'convidados',
+    extra: evento,
+  );
+},
+    ),
+    const Text(
+      '0 convidados', // Esse valor futuramente será dinâmico
+      style: TextStyle(fontSize: 12, color: Colors.black54),
+    ),
+  ],
+),
+
+                      ],
                     ),
                     const Divider(height: 32),
                     _buildInfoItem('Tipo', evento.tipo),
@@ -152,6 +183,8 @@ class DetalhesEventoPage extends StatelessWidget {
                     iconColor: const Color.fromARGB(255, 0, 202, 252)),
                 _buildIconTile(Icons.map, 'Localização',
                     iconColor: const Color.fromARGB(255, 56, 192, 61)),
+                 _buildIconTile(Icons.group_add, 'Convidar Amigos',
+                    iconColor: Colors.purple),
               ],
             ),
           ],

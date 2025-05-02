@@ -9,7 +9,6 @@ import '../../services/login_service.dart';
 import '../../services/token_service.dart';
 import '../../models/login_model.dart';
 
-// Variável de cor principal 🌟
 const Color primaryColor = Color.fromARGB(255, 152, 103, 236);
 
 class LoginPage extends StatefulWidget {
