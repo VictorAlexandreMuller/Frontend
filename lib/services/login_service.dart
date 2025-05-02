@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:festora/config/api_config.dart';
 import 'package:festora/models/login_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:festora/services/token_service.dart';
+
 
 class LoginService {
+  static String token = '';
+
   Future<bool> fazerLogin(LoginModel login) async {
     final url = Uri.parse(
         '${ApiConfig.baseUrl}/usuarios/login'); // exemplo: http://localhost:8080/api/eventos
@@ -19,8 +22,7 @@ class LoginService {
       final responseBody = jsonDecode(response.body);
       final token = responseBody['token'];
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('token', token);
+      await TokenService.salvarToken(token); // <- usa TokenService
 
       return true;
     }

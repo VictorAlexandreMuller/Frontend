@@ -1,17 +1,33 @@
 import 'package:festora/config/api_config.dart';
 import 'package:festora/pages/login/login_page.dart';
 import 'package:festora/pages/login/register_page.dart';
-import 'package:festora/pages/menu/home_page.dart';
-import 'package:festora/utils/TokenHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenService {
-  // Verifica se o token é válido
+  static const _storage = FlutterSecureStorage();
+  static const _tokenKey = 'auth_token';
+
+  static Future<void> salvarToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
+  static Future<String?> obterToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  static Future<void> removerToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
   static Future<void> verificarToken(BuildContext context) async {
-    String? token = await TokenHelper.getToken();
+    String? token = await TokenService.obterToken(); // <-- Aqui o ajuste
 
     if (token == null) {
       _redirecionarParaLogin(context);
