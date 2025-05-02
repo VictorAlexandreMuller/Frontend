@@ -65,6 +65,7 @@ class HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
+    {"icon": Icons.group, "label": "Amigos"},
   ];
 
   @override
@@ -193,6 +194,9 @@ class HomePageState extends State<HomePage> {
                             widget.onCreatePressed?.call();
                           } else if (item['label'] == 'Agenda') {
                             GoRouter.of(context).pushNamed('agenda');
+                          } else if (item['label'] == 'Amigos') {
+                            GoRouter.of(context)
+                                .pushNamed('amigos');
                           }
                         },
                         child: Container(

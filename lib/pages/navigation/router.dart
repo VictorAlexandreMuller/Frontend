@@ -1,8 +1,10 @@
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/funcionalidades/amigos/adicionar_amigo_page.dart';
+import 'package:festora/pages/funcionalidades/amigos/amigos_page.dart';
+import 'package:festora/pages/funcionalidades/amigos/convidar_amigos_page.dart';
+import 'package:festora/pages/funcionalidades/amigos/convites/convite_page.dart';
 import 'package:festora/pages/funcionalidades/calendario_page.dart';
-import 'package:festora/pages/menu/buscar_page.dart';
-import 'package:festora/pages/menu/listagem_page.dart';
-import 'package:festora/pages/menu/perfil_page.dart';
+import 'package:festora/pages/funcionalidades/convidados_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../help/help_page.dart';
@@ -37,7 +39,6 @@ abstract class AppRouter {
         builder: (context, state) => const HomeSectionPage(),
       ),
 
-      // 🍵 CRIAÇÃO E EDIÇÃO UNIFICADAS
       GoRoute(
         path: '/criar-evento',
         name: 'criar-evento',
@@ -75,6 +76,48 @@ abstract class AppRouter {
         path: '/agenda',
         name: 'agenda',
         builder: (context, state) => const AgendaPage(),
+      ),
+      GoRoute(
+        path: '/convidados',
+        name: ConvidadosPage.routeName,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is EventoModel) {
+            return ConvidadosPage(evento: extra);
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Evento não encontrado.')),
+            );
+          }
+        },
+      ),
+      GoRoute(
+        path: '/adicionar-amigo',
+        name: AdicionarAmigoPage.routeName,
+        builder: (context, state) => const AdicionarAmigoPage(),
+      ),
+      GoRoute(
+        path: '/convidar-amigos',
+        name: 'convidar-amigos',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is EventoModel) {
+            return ConvidarAmigosPage(evento: extra);
+          } else {
+            return const Scaffold(
+                body: Center(child: Text('Evento não encontrado.')));
+          }
+        },
+      ),
+      GoRoute(
+        path: '/amigos',
+        name: AmigosPage.routeName,
+        builder: (context, state) => const AmigosPage(),
+      ),
+      GoRoute(
+        path: '/convites',
+        name: ConvitesPage.routeName,
+        builder: (context, state) => const ConvitesPage(),
       ),
     ],
   );
