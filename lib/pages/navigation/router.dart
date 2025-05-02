@@ -1,13 +1,16 @@
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/funcionalidades/calendario_page.dart';
+import 'package:festora/pages/menu/buscar_page.dart';
+import 'package:festora/pages/menu/listagem_page.dart';
+import 'package:festora/pages/menu/perfil_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import '../help/help_page.dart';
 import '../login/login_page.dart';
 import '../login/register_page.dart';
-import '../menu/home_page.dart';
 import '../event/criar_editar/criar_editar_evento__page.dart';
 import '../event/ver_evento/detalhes_evento_page.dart';
+import '../menu/home_section_page.dart';
 
 abstract class AppRouter {
   static GoRouter router = GoRouter(
@@ -30,8 +33,8 @@ abstract class AppRouter {
       ),
       GoRoute(
         path: '/menu',
-        name: HomePage.name,
-        builder: (context, state) => const HomePage(),
+        name: HomeSectionPage.name,
+        builder: (context, state) => const HomeSectionPage(),
       ),
 
       // 🍵 CRIAÇÃO E EDIÇÃO UNIFICADAS
@@ -67,6 +70,11 @@ abstract class AppRouter {
             );
           }
         },
+      ),
+      GoRoute(
+        path: '/agenda',
+        name: 'agenda',
+        builder: (context, state) => const AgendaPage(),
       ),
     ],
   );

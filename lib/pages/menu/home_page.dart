@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
-import 'package:festora/models/usuario_details_model' as u;
+import 'package:festora/models/usuario_details_model.dart' as u;
 import 'package:festora/services/evento_service.dart';
 import 'package:festora/services/token_service.dart';
 import 'package:festora/services/usuario_service.dart';
-import 'package:festora/widgets/appBar/custom_bottomnavigation.dart';
 import 'package:festora/widgets/appBar/gradient_appbar.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
-import 'package:festora/widgets/dialogs/select_tipo_cha_dialog.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:festora/pages/event/ver_evento/detalhes_evento_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onCreatePressed});
   static const String name = 'HomePage';
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
+  final VoidCallback? onCreatePressed;
 }
 
-class _HomePageState extends State<HomePage> {
-  int selectedItem = 0;
+class HomePageState extends State<HomePage> {
   late u.UsuarioDetailsModel usuario;
   List<EventoModel> chas = [];
   late String usuarioNome = 'Carregando...';
@@ -64,12 +62,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onBNTapped(int index) {
-    setState(() {
-      selectedItem = index;
-    });
-  }
-
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
@@ -82,11 +74,6 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F3F3),
         appBar: GradientAppBar(usuarioNome),
-        bottomNavigationBar: CustomBottomNavigation(
-          currentIndex: selectedItem,
-          onItemSelected: _onBNTapped,
-          onCreatePressed: () => _mostrarEscolhaDeCha(context),
-        ),
         body: RefreshIndicator(
           onRefresh: _carregarDados,
           child: Padding(
@@ -111,8 +98,9 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(13),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(13),
-                                  splashColor: Colors.blue.withOpacity(0.2),
-                                  highlightColor: Colors.black12,
+                                  splashColor: Colors.transparent,
+                                  highlightColor:
+                                      const Color.fromARGB(255, 233, 245, 255),
                                   onTap: () {
                                     context.pushNamed(
                                       DetalhesEventoPage.routeName,
@@ -120,49 +108,65 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                   onLongPress: () {
+                                    // Durante o long press, aplicamos efeitos visualmente
+                                    setState(() {
+                                      // Ativa os efeitos temporariamente, se necessário
+                                    });
                                     _mostrarOpcoesEvento(context, evento);
                                   },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              evento.titulo ?? '',
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black,
+                                  onHighlightChanged: (isHighlighted) {
+                                    if (isHighlighted) {
+                                      // Aqui, você poderia acionar um efeito de highlight visual opcional,
+                                    }
+                                  },
+                                  splashFactory: InkSplash
+                                      .splashFactory, // permite efeito de splash no longPress
+                                  child: Ink(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                evento.titulo ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              evento.descricao ?? '',
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black54,
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                evento.descricao ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black54,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Text(
-                                          _formatarData(evento.data),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
+                                            ],
                                           ),
-                                        ),
-                                      ],
+                                          Text(
+                                            _formatarData(evento.data),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -186,7 +190,9 @@ class _HomePageState extends State<HomePage> {
                       return GestureDetector(
                         onTap: () {
                           if (item['label'] == 'Criar Evento') {
-                            _mostrarEscolhaDeCha(context);
+                            widget.onCreatePressed?.call();
+                          } else if (item['label'] == 'Agenda') {
+                            GoRouter.of(context).pushNamed('agenda');
                           }
                         },
                         child: Container(
@@ -222,17 +228,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  void _mostrarEscolhaDeCha(BuildContext context) async {
-    final tipoEscolhido = await SelectTipoChaDialog.show(context);
-    if (tipoEscolhido != null) {
-      final result =
-          await context.push<String>('/criar-evento', extra: tipoEscolhido);
-      if (result == 'evento_criado') {
-        await carregarEventosAtivos();
-      }
-    }
   }
 
   String _formatarData(String? isoDate) {
@@ -290,24 +285,55 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Excluir Evento'),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  await Future.delayed(Duration(milliseconds: 200));
+
+                  Future<bool> _confirmarExclusao(BuildContext context) async {
+                    return await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Confirmar Exclusão'),
+                              content: const Text(
+                                  'Você tem certeza que deseja excluir este evento?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: const Text('Cancelar'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Excluir'),
+                                ),
+                              ],
+                            );
+                          },
+                        ) ??
+                        false;
+                  }
+
                   final ehAutor = await EventoService()
                       .verificarSeUsuarioEhAutor(evento.id!);
                   if (ehAutor) {
-                    final result = await context
-                        .pushNamed<String>('criar-evento', extra: evento);
-                    if (result == 'evento_editado') {
+                    bool confirmado = await _confirmarExclusao(context);
+                    if (confirmado) {
+                      await EventoService().desativarEvento(evento.id!);
                       await carregarEventosAtivos();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content: Text('Evento atualizado com sucesso!')),
+                          content: Text('Evento excluído com sucesso!'),
+                        ),
                       );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text(
-                              'Você não tem permissão para editar este evento.')),
+                        content: Text(
+                            'Você não tem permissão para excluir este evento.'),
+                      ),
                     );
                   }
                 },

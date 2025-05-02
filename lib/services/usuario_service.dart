@@ -1,7 +1,6 @@
 import 'dart:convert';
-
 import 'package:festora/config/api_config.dart';
-import 'package:festora/models/usuario_details_model';
+import 'package:festora/models/usuario_details_model.dart';
 import 'package:festora/utils/TokenHelper.dart';
 import 'package:http/http.dart' as http;
 

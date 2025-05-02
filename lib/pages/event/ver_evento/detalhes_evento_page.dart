@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/services/evento_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class DetalhesEventoPage extends StatelessWidget {
@@ -15,6 +17,7 @@ class DetalhesEventoPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do Evento'),
+        backgroundColor: Colors.pinkAccent,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -50,6 +53,87 @@ class DetalhesEventoPage extends StatelessWidget {
                       'Endereço',
                       '${evento.rua}, ${evento.numero} - ${evento.cidade} - ${evento.estado}',
                     ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          label: const Text('Editar',
+                              style: TextStyle(color: Colors.blue)),
+                          onPressed: () async {
+                            final result = await context.pushNamed<String>(
+                              'criar-evento',
+                              extra: evento,
+                            );
+                            if (context.mounted && result == 'evento_editado') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Evento atualizado com sucesso!'),
+                                ),
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton.icon(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          label: const Text('Excluir',
+                              style: TextStyle(color: Colors.red)),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Excluir Evento'),
+                                    content: const Text(
+                                        'Tem certeza que deseja excluir este evento?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Excluir'),
+                                      ),
+                                    ],
+                                  ),
+                                ) ??
+                                false;
+
+                            if (confirm) {
+                              try {
+                                await EventoService()
+                                    .desativarEvento(evento.id!);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Evento excluído com sucesso.')),
+                                  );
+                                  Navigator.of(context).pop();
+                                }
+                              } catch (_) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Erro ao excluir evento.')),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -63,11 +147,13 @@ class DetalhesEventoPage extends StatelessWidget {
               crossAxisSpacing: 16,
               childAspectRatio: 1,
               children: [
-                _buildIconTile(Icons.chat, 'Chat'),
-                _buildIconTile(Icons.list, 'Presentes'),
-                _buildIconTile(Icons.map, 'Localização'),
+                _buildIconTile(Icons.chat, 'Chat', iconColor: Colors.blue),
+                _buildIconTile(Icons.list, 'Presentes',
+                    iconColor: const Color.fromARGB(255, 0, 202, 252)),
+                _buildIconTile(Icons.map, 'Localização',
+                    iconColor: const Color.fromARGB(255, 56, 192, 61)),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -98,7 +184,8 @@ class DetalhesEventoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIconTile(IconData icon, String label) {
+  Widget _buildIconTile(IconData icon, String label,
+      {Color iconColor = Colors.black}) {
     return GestureDetector(
       onTap: () {
         // ação ao clicar no item
@@ -112,7 +199,7 @@ class DetalhesEventoPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 30, color: Colors.black),
+            Icon(icon, size: 30, color: iconColor),
             const SizedBox(height: 8),
             Text(
               label,

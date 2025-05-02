@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/services/evento_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:festora/widgets/containers/animated_gradient_border_container.dart';
 
@@ -29,11 +30,15 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
   final TextEditingController ruaController = TextEditingController();
   final TextEditingController numeroController = TextEditingController();
 
+  late String tipoSelecionado;
+
   DateTime? selectedDate;
 
   @override
   void initState() {
     super.initState();
+
+    tipoSelecionado = widget.evento?.tipo ?? widget.tipoEvento ?? '';
 
     if (widget.evento != null) {
       tituloController.text = widget.evento!.titulo ?? '';
@@ -255,7 +260,7 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
         id: widget.evento?.id,
         titulo: tituloController.text,
         descricao: descricaoController.text,
-        tipo: widget.tipoEvento ?? widget.evento?.tipo ?? '',
+        tipo: tipoSelecionado, // <- aqui
         data: selectedDate?.toIso8601String() ?? '',
         local: localController.text,
         estado: estadoController.text,
@@ -278,8 +283,7 @@ class _CriarEventoPageState extends State<CriarEventoPage> {
                   ? 'Evento atualizado com sucesso!'
                   : 'Evento criado com sucesso!')),
         );
-        Navigator.of(context)
-            .pop(widget.evento != null ? 'evento_editado' : 'evento_criado');
+        context.pop(widget.evento != null ? 'evento_editado' : 'evento_criado');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao salvar evento')),

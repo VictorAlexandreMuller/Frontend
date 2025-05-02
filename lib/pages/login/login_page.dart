@@ -1,10 +1,10 @@
 import 'package:festora/pages/help/help_page.dart';
+import 'package:festora/pages/menu/home_section_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../pages/login/register_page.dart';
-import '../../pages/menu/home_page.dart';
 import '../../services/login_service.dart';
 import '../../services/token_service.dart';
 import '../../models/login_model.dart';
@@ -56,7 +56,7 @@ class _LoginPage extends State<LoginPage> {
     });
 
     if (sucesso == true) {
-      context.goNamed(HomePage.name);
+      context.goNamed(HomeSectionPage.name);
     } else {
       setState(() {
         _errorMessage = "Login ou senha incorretos";
