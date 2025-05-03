@@ -56,24 +56,25 @@ class DetalhesEventoPage extends StatelessWidget {
                           ),
                         ),
                         Column(
-  children: [
-    IconButton(
-      icon: const Icon(Icons.person_add_alt_1, color: Colors.purple),
-      tooltip: 'Convidar participantes',
-      onPressed: () {
-  context.pushNamed(
-    'convidados',
-    extra: evento,
-  );
-},
-    ),
-    const Text(
-      '0 convidados', // Esse valor futuramente será dinâmico
-      style: TextStyle(fontSize: 12, color: Colors.black54),
-    ),
-  ],
-),
-
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.person_add_alt_1,
+                                  color: Colors.purple),
+                              tooltip: 'Convidar participantes',
+                              onPressed: () {
+                                context.pushNamed(
+                                  'convidados',
+                                  extra: evento,
+                                );
+                              },
+                            ),
+                            const Text(
+                              '0 convidados', // Esse valor futuramente será dinâmico
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.black54),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const Divider(height: 32),
@@ -178,13 +179,26 @@ class DetalhesEventoPage extends StatelessWidget {
               crossAxisSpacing: 16,
               childAspectRatio: 1,
               children: [
-                _buildIconTile(Icons.chat, 'Chat', iconColor: Colors.blue),
+                _buildIconTile(Icons.chat, 'Chat', iconColor: Colors.blue,
+                    onTap: () {
+                  // TODO: implementar
+                }),
                 _buildIconTile(Icons.list, 'Presentes',
-                    iconColor: const Color.fromARGB(255, 0, 202, 252)),
+                    iconColor: const Color.fromARGB(255, 0, 202, 252),
+                    onTap: () {
+                  GoRouter.of(context)
+                      .pushNamed('presente-evento', extra: evento);
+                }),
                 _buildIconTile(Icons.map, 'Localização',
-                    iconColor: const Color.fromARGB(255, 56, 192, 61)),
-                 _buildIconTile(Icons.group_add, 'Convidar Amigos',
-                    iconColor: Colors.purple),
+                    iconColor: const Color.fromARGB(255, 56, 192, 61),
+                    onTap: () {
+                  // TODO: implementar
+                }),
+                _buildIconTile(Icons.group_add, 'Convidar Amigos',
+                    iconColor: Colors.purple, onTap: () {
+                  GoRouter.of(context)
+                      .pushNamed('convidar-amigos', extra: evento);
+                }),
               ],
             ),
           ],
@@ -218,11 +232,9 @@ class DetalhesEventoPage extends StatelessWidget {
   }
 
   Widget _buildIconTile(IconData icon, String label,
-      {Color iconColor = Colors.black}) {
+      {Color iconColor = Colors.black, required VoidCallback onTap}) {
     return GestureDetector(
-      onTap: () {
-        // ação ao clicar no item
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

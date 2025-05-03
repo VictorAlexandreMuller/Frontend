@@ -1,4 +1,3 @@
-import 'package:festora/pages/funcionalidades/amigos/convites/convite_page.dart';
 import 'package:festora/pages/menu/home_section_page.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/services/amizade_service.dart';
@@ -25,13 +24,20 @@ class _AmigosPageState extends State<AmigosPage> {
   }
 
   Future<void> carregarAmizades() async {
+    print('Iniciando carregarAmizades...');
     try {
       final aceitos = await AmizadeService().listarAceitos();
+      print('Resposta recebida: $aceitos');
       setState(() {
         amigos = aceitos;
-        carregando = false;
       });
-    } catch (_) {
+    } catch (e) {
+      print('Erro ao carregar amizades: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao carregar amigos.')),
+      );
+    } finally {
+      print('Finalizando carregamento...');
       setState(() => carregando = false);
     }
   }
