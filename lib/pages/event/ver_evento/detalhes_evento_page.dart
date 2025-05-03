@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/utils/rota_anterior_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:go_router/go_router.dart';
@@ -64,6 +65,12 @@ class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
       appBar: AppBar(
         title: const Text('Detalhes do Evento'),
         backgroundColor: Colors.pinkAccent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+           RotaAnteriorUtils.redirecionar(context);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -140,7 +147,8 @@ class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
                           label: const Text('Editar',
                               style: TextStyle(color: Colors.blue)),
                           onPressed: () async {
-                            EventoModel eventoModel = EventoModel.fromDetails(evento);
+                            EventoModel eventoModel =
+                                EventoModel.fromDetails(evento);
                             final result = await context.pushNamed<String>(
                               'criar-evento',
                               extra: eventoModel,

@@ -1,4 +1,5 @@
 import 'package:festora/utils/redirecionar_util.dart';
+import 'package:festora/utils/rota_anterior_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model.dart' as u;
@@ -132,6 +133,7 @@ class HomePageState extends State<HomePage> {
                                   highlightColor:
                                       const Color.fromARGB(255, 233, 245, 255),
                                   onTap: () {
+                                    RotaAnteriorUtils.setRota(context);
                                     final eventoId = evento.id;
                                     if (eventoId != null) {
                                       Redirecionar()

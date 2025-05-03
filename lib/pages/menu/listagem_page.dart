@@ -1,3 +1,5 @@
+import 'package:festora/utils/redirecionar_util.dart';
+import 'package:festora/utils/rota_anterior_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/services/evento_service.dart';
@@ -45,8 +47,14 @@ class ListagemPageState extends State<ListagemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Todos os Eventos'),
+        title: const Text('Detalhes do Evento'),
         backgroundColor: Colors.pinkAccent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.goNamed(ListagemPage.name);
+          },
+        ),
       ),
       backgroundColor: const Color(0xFFF3F3F3),
       body: _carregando
@@ -62,10 +70,11 @@ class ListagemPageState extends State<ListagemPage> {
                     return InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {
-                        GoRouter.of(context).pushNamed(
-                          'detalhes-evento',
-                          extra: evento,
-                        );
+                        RotaAnteriorUtils.setRota(context);
+                        final eventoId = evento.id;
+                        if (eventoId != null) {
+                          Redirecionar().eventoDetails(context, eventoId);
+                        }
                       },
                       child: Card(
                         shape: RoundedRectangleBorder(
