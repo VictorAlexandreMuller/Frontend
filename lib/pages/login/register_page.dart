@@ -1,6 +1,7 @@
 import 'package:festora/models/registro_erro_model.dart';
 import 'package:festora/models/usuario_register_model.dart';
 import 'package:festora/pages/login/login_page.dart';
+import 'package:festora/pages/menu/home_section_page.dart';
 import 'package:festora/services/registro_service.dart';
 import 'package:festora/services/token_service.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,10 @@ class _RegisterPage extends State<RegisterPage> {
   }
 
   Future<void> _verificarToken() async {
-    TokenService.verificarToken(context);
+    bool autenticado = await TokenService.verificarToken(context);
+    if (autenticado) {
+      context.goNamed(HomeSectionPage.name);
+    }
   }
 
   Future<void> _register() async {

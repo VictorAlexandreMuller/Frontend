@@ -1,6 +1,7 @@
 import 'package:festora/config/api_config.dart';
 import 'package:festora/pages/login/login_page.dart';
 import 'package:festora/pages/login/register_page.dart';
+import 'package:festora/pages/menu/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,7 @@ class TokenService {
     await prefs.remove('token');
   }
 
-  static Future<void> verificarToken(BuildContext context) async {
+  static Future<bool> verificarToken(BuildContext context) async {
     String? token = await TokenService.obterToken(); // <-- Aqui o ajuste
 
     final url = Uri.parse('${ApiConfig.baseUrl}/usuarios/verificarToken');
@@ -37,16 +38,26 @@ class TokenService {
         'Authorization': 'Bearer $token',
       },
     );
-
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode != 200) {
       final currentRoute = ModalRoute.of(context)?.settings.name;
 
-    if (currentRoute != LoginPage.name && currentRoute != RegisterPage.name && currentRoute != null) {
-      final currentRouteURI = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
-       final prefs = await SharedPreferences.getInstance();
-       prefs.setString("rota_anterior", currentRouteURI);
-    }
+      if (currentRoute != LoginPage.name &&
+          currentRoute != RegisterPage.name &&
+          currentRoute != null) {
+        final currentRouteURI = GoRouter.of(context)
+            .routerDelegate
+            .currentConfiguration
+            .uri
+            .toString();
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString("rota_anterior", currentRouteURI);
+      }
       _redirecionarParaLogin(context);
+      return false;
+    } else {
+      return false;
     }
   }
 

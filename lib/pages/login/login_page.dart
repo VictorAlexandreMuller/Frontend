@@ -1,4 +1,5 @@
 import 'package:festora/pages/help/help_page.dart';
+import 'package:festora/pages/menu/home_page.dart';
 import 'package:festora/pages/menu/home_section_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -34,7 +35,10 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Future<void> _verificarToken() async {
-    TokenService.verificarToken(context);
+    bool autenticado = await TokenService.verificarToken(context);
+    if (autenticado) {
+      context.goNamed(HomeSectionPage.name);
+    }
   }
 
   Future<void> _login() async {
