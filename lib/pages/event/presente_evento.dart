@@ -21,70 +21,85 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
   bool _carregando = false;
 
   Future<void> _cadastrarPresente() async {
-    final nome = _nomeController.text.trim();
-    if (nome.isEmpty) return;
 
-    setState(() => _carregando = true);
-
-    try {
-      final token = await TokenService.obterToken();
-
-      final response = await http.post(
-        Uri.parse(
-            'http://localhost:8080/eventos/presentes/${widget.evento.id}'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({"nome": nome}),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Presente cadastrado com sucesso!')),
-        );
-        _nomeController.clear();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${response.body}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao cadastrar presente.')),
-      );
-    }
-
-    setState(() => _carregando = false);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cadastrar Presente'),
-        backgroundColor: Colors.pinkAccent,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nomeController,
-              decoration: const InputDecoration(
-                labelText: 'Nome do presente',
-                border: OutlineInputBorder(),
-              ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Cadastrar Presente'),
+      backgroundColor: Colors.pinkAccent,
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _nomeController,
+            decoration: const InputDecoration(
+              labelText: 'Nome do presente',
+              border: OutlineInputBorder(),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.card_giftcard),
-              label: const Text('Cadastrar'),
-              onPressed: _carregando ? null : _cadastrarPresente,
-            ),
-          ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.card_giftcard),
+            label: const Text('Cadastrar'),
+            onPressed: _carregando ? null : _cadastrarPresente,
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            'Presentes já cadastrados:',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+  child: widget.evento.presentes.isEmpty
+    ? const Text('Nenhum presente cadastrado.')
+    : ListView.builder(
+        itemCount: widget.evento.presentes.length,
+        itemBuilder: (context, index) {
+          final presente = widget.evento.presentes[index];
+          return Card(
+  child: ExpansionTile(
+    title: Row(
+      children: [
+        Expanded(child: Text(presente.titulo)),
+        if (presente.responsaveis.isNotEmpty)
+          const Icon(Icons.check_circle, color: Colors.green),
+      ],
+    ),
+    subtitle: Text(presente.descricao),
+    children: [
+      const Padding(
+        padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+        child: Text(
+          'Quem vai entregar:',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-    );
-  }
+      if (presente.responsaveis.isEmpty)
+        const Padding(
+          padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+          child: Text('Ninguém se responsabilizou ainda.'),
+        )
+      else
+        ...presente.responsaveis.map((r) => ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(r.nome),
+            )),
+    ],
+  ),
+);
+        },
+      ),
+)
+        ],
+      ),
+    ),
+  );
+}
+
 }

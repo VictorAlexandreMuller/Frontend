@@ -17,7 +17,7 @@ class PresenteModel {
     return PresenteModel(
       id: json['id'],
       titulo: json['titulo'],
-      descricao: json['titulo'],
+      descricao: json['descricao'],
       responsaveis: (json['responsaveis'] as List)
           .map((e) => Usuario.fromJson(e))
           .toList(),
