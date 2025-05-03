@@ -8,37 +8,37 @@ import 'package:festora/utils/TokenHelper.dart';
 class EventoService {
   static final String baseUrl = kIsWeb
       ? 'http://localhost:8080/eventos' // navegador web (teste local)
-      : 'http://192.168.15.75:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR PC
-  // : 'http://192.168.71.222:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR NOTEBOOK
+      //    : 'http://192.168.15.75:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR PC
+      : 'http://192.168.71.222:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR NOTEBOOK
 
- Future<(bool, EventoErroModel)> criarEvento(EventoModel evento) async {
-  final token = await TokenHelper.getToken();
-  try {
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(evento.toJson()),
-    );
+  Future<(bool, EventoErroModel)> criarEvento(EventoModel evento) async {
+    final token = await TokenHelper.getToken();
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(evento.toJson()),
+      );
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      return (true, EventoErroModel());
-    } else if (response.statusCode == 400) {
-      final decodedBody = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> responseData = jsonDecode(decodedBody);
-      final errors = EventoErroModel.fromJson(responseData);
-      return (false, errors);
-    } else {
-      // Retorno genérico para outros códigos de status
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return (true, EventoErroModel());
+      } else if (response.statusCode == 400) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseData = jsonDecode(decodedBody);
+        final errors = EventoErroModel.fromJson(responseData);
+        return (false, errors);
+      } else {
+        // Retorno genérico para outros códigos de status
+        return (false, EventoErroModel());
+      }
+    } catch (e) {
+      print('Erro na comunicação: $e');
       return (false, EventoErroModel());
     }
-  } catch (e) {
-    print('Erro na comunicação: $e');
-    return (false, EventoErroModel());
   }
-}
 
   Future<List<EventoModel>> listarEventosAtivos() async {
     final token = await TokenHelper.getToken();
@@ -65,21 +65,20 @@ class EventoService {
   }
 
   Future<bool> desativarEvento(String id) async {
-  final token = await TokenHelper.getToken();
-  final response = await http.put(
-    Uri.parse('$baseUrl/$id/desativar'),
-    headers: {
-      'Authorization': 'Bearer $token',
-    },
-  );
+    final token = await TokenHelper.getToken();
+    final response = await http.put(
+      Uri.parse('$baseUrl/$id/desativar'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    return true;
-  } else {
-    return false;
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
-}
-
 
   Future<(bool, EventoErroModel)> editarEvento(EventoModel evento) async {
     final token = await TokenHelper.getToken();
@@ -94,20 +93,20 @@ class EventoService {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-      return (true, EventoErroModel());
-    } else if (response.statusCode == 400) {
-      final decodedBody = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> responseData = jsonDecode(decodedBody);
-      final errors = EventoErroModel.fromJson(responseData);
-      return (false, errors);
-    } else {
-      // Retorno genérico para outros códigos de status
+        return (true, EventoErroModel());
+      } else if (response.statusCode == 400) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseData = jsonDecode(decodedBody);
+        final errors = EventoErroModel.fromJson(responseData);
+        return (false, errors);
+      } else {
+        // Retorno genérico para outros códigos de status
+        return (false, EventoErroModel());
+      }
+    } catch (e) {
+      print('Erro na comunicação: $e');
       return (false, EventoErroModel());
     }
-  } catch (e) {
-    print('Erro na comunicação: $e');
-    return (false, EventoErroModel());
-  }
   }
 
   Future<bool> verificarSeUsuarioEhAutor(String eventoId) async {
