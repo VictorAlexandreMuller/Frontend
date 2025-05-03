@@ -1,3 +1,4 @@
+import 'package:festora/utils/redirecionar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/models/usuario_details_model.dart' as u;
@@ -84,6 +85,11 @@ class HomePageState extends State<HomePage> {
     Share.share(mensagem);
   }
 
+  void redirecionarEvento(String eventoId) {
+    final uri = Uri.parse('/detalhes-evento?eventoId=$eventoId');
+    GoRouter.of(context).go(uri.toString());
+  }
+
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
@@ -126,10 +132,11 @@ class HomePageState extends State<HomePage> {
                                   highlightColor:
                                       const Color.fromARGB(255, 233, 245, 255),
                                   onTap: () {
-                                    context.pushNamed(
-                                      DetalhesEventoPage.routeName,
-                                      extra: evento,
-                                    );
+                                    final eventoId = evento.id;
+                                    if (eventoId != null) {
+                                      Redirecionar()
+                                          .eventoDetails(context, eventoId);
+                                    }
                                   },
                                   onLongPress: () {
                                     // Durante o long press, aplicamos efeitos visualmente

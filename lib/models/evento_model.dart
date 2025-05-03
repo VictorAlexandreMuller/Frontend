@@ -1,3 +1,5 @@
+import 'package:festora/models/evento_details_model.dart';
+
 class EventoModel {
   final String? id; // <<< Adicionado
   final String titulo;
@@ -52,6 +54,21 @@ class EventoModel {
       cidade: endereco['cidade'],
       rua: endereco['rua'],
       numero: endereco['numero'],
+    );
+  }
+
+  static EventoModel fromDetails(EventoDetails details) {
+    return EventoModel(
+      id: details.id,
+      titulo: details.titulo,
+      descricao: details.descricao,
+      tipo: details.tipo,
+      data: details.data,
+      local: details.endereco.local,
+      estado: details.endereco.estado,
+      cidade: details.endereco.cidade,
+      rua: details.endereco.rua,
+      numero: details.endereco.numero,
     );
   }
 }

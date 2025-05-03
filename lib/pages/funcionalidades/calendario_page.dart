@@ -1,4 +1,5 @@
 import 'package:festora/pages/event/ver_evento/detalhes_evento_page.dart';
+import 'package:festora/utils/redirecionar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -214,9 +215,10 @@ class _AgendaPageState extends State<AgendaPage> {
                         leading:
                             const Icon(Icons.event_note, color: Colors.pink),
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => DetalhesEventoPage(evento: evento),
-                          ));
+                          final eventoId = evento.id;
+                          if (eventoId != null) {
+                            Redirecionar().eventoDetails(context, eventoId);
+                          }
                         },
                       );
                     },

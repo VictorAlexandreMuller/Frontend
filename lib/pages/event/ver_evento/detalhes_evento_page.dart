@@ -1,19 +1,65 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/models/evento_model.dart';
+import 'package:flutter/material.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class DetalhesEventoPage extends StatelessWidget {
-  final EventoModel evento;
+class DetalhesEventoPage extends StatefulWidget {
+  final String eventoId;
 
-  const DetalhesEventoPage({super.key, required this.evento});
+  const DetalhesEventoPage({super.key, required this.eventoId});
 
   static const String routeName = 'detalhes-evento';
   static const String routePath = '/detalhes-evento';
 
   @override
+  State<DetalhesEventoPage> createState() => _DetalhesEventoPageState();
+}
+
+class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
+  late EventoDetails evento;
+  bool isLoading = true;
+  bool hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    carregarEvento();
+  }
+
+  Future<void> carregarEvento() async {
+    try {
+      final (ok, eventoCarregado) =
+          await EventoService().buscarEvento(widget.eventoId);
+      if (!mounted) return;
+      setState(() {
+        evento = eventoCarregado;
+        isLoading = false;
+      });
+    } catch (_) {
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (hasError) {
+      return const Scaffold(
+        body: Center(child: Text('Erro ao carregar evento.')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do Evento'),
@@ -69,7 +115,7 @@ class DetalhesEventoPage extends StatelessWidget {
                               },
                             ),
                             const Text(
-                              '0 convidados', // Esse valor futuramente será dinâmico
+                              '0 convidados',
                               style: TextStyle(
                                   fontSize: 12, color: Colors.black54),
                             ),
@@ -80,10 +126,10 @@ class DetalhesEventoPage extends StatelessWidget {
                     const Divider(height: 32),
                     _buildInfoItem('Tipo', evento.tipo),
                     _buildInfoItem('Data e Hora', _formatarData(evento.data)),
-                    _buildInfoItem('Local', evento.local),
+                    _buildInfoItem('Local', evento.endereco.local),
                     _buildInfoItem(
                       'Endereço',
-                      '${evento.rua}, ${evento.numero} - ${evento.cidade} - ${evento.estado}',
+                      '${evento.endereco.rua}, ${evento.endereco.numero} - ${evento.endereco.cidade} - ${evento.endereco.estado}',
                     ),
                     const SizedBox(height: 24),
                     Row(
@@ -94,9 +140,10 @@ class DetalhesEventoPage extends StatelessWidget {
                           label: const Text('Editar',
                               style: TextStyle(color: Colors.blue)),
                           onPressed: () async {
+                            EventoModel eventoModel = EventoModel.fromDetails(evento);
                             final result = await context.pushNamed<String>(
                               'criar-evento',
-                              extra: evento,
+                              extra: eventoModel,
                             );
                             if (context.mounted && result == 'evento_editado') {
                               ScaffoldMessenger.of(context).showSnackBar(
