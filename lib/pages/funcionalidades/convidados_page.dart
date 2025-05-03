@@ -1,9 +1,9 @@
+import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/services/convidado_service.dart';
 import 'package:flutter/material.dart';
-import 'package:festora/models/evento_model.dart';
 
 class ConvidadosPage extends StatefulWidget {
-  final EventoModel evento;
+  final EventoDetails evento;
 
   const ConvidadosPage({super.key, required this.evento});
 

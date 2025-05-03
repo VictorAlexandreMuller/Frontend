@@ -1,4 +1,6 @@
+import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/convite/convite.dart';
 import 'package:festora/pages/event/presente_evento.dart';
 import 'package:festora/pages/funcionalidades/amigos/adicionar_amigo_page.dart';
 import 'package:festora/pages/funcionalidades/amigos/amigos_page.dart';
@@ -63,10 +65,13 @@ abstract class AppRouter {
         path: '/detalhes-evento',
         name: DetalhesEventoPage.routeName, // 'detalhes-evento'
         builder: (context, state) {
-          final extra = state.extra;
-          if (extra is EventoModel) {
-            return DetalhesEventoPage(evento: extra);
+          final eventoId = state.uri.queryParameters['eventoId'];
+
+          // Verifique se o eventoId está presente
+          if (eventoId != null && eventoId.isNotEmpty) {
+            return DetalhesEventoPage(eventoId: eventoId);
           } else {
+            // Caso não haja o eventoId, pode retornar uma tela de erro ou redirecionar
             return const Scaffold(
               body: Center(child: Text('Evento não encontrado.')),
             );
@@ -83,7 +88,7 @@ abstract class AppRouter {
         name: ConvidadosPage.routeName,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is EventoModel) {
+          if (extra is EventoDetails) {
             return ConvidadosPage(evento: extra);
           } else {
             return const Scaffold(
@@ -121,11 +126,16 @@ abstract class AppRouter {
         builder: (context, state) => const ConvitesPage(),
       ),
       GoRoute(
+        path: '/convite',
+        name: ConviteLinkPage.routeName,
+        builder: (context, state) => const ConviteLinkPage(),
+      ),
+      GoRoute(
         path: '/presente-evento',
         name: 'presente-evento',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is EventoModel) {
+          if (extra is EventoDetails) {
             return PresenteEventoPage(evento: extra);
           } else {
             return const Scaffold(

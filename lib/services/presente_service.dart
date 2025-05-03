@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:festora/models/criar_presente_model.dart';
 import 'package:festora/models/presente_model.dart';
 import 'package:festora/services/token_service.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,8 @@ class PresenteService {
     }
   }
 
-  Future<void> criarPresente(String eventoId, String nome) async {
+  Future<bool> criarPresente(
+      String eventoId, PresenteCreateModel presente) async {
     final token = await TokenService.obterToken();
 
     final response = await http.post(
@@ -26,19 +28,31 @@ class PresenteService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'nome': nome}),
+      body: jsonEncode(presente.toJson()),
     );
 
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao adicionar presente');
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 
-  Future<void> adicionarResponsavel(String presenteId) async {
-    final response = await http.post(Uri.parse('$baseUrl/addResp/$presenteId'));
+  Future<bool> adicionarResponsavel(String presenteId) async {
+    final token = await TokenService.obterToken();
 
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao adicionar responsável');
+    final response = await http.post(
+      Uri.parse('$baseUrl/addResp/$presenteId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ConvidadoService {
-  final String baseUrl = 'http://localhost:8080/api/convidados'; // ajuste se necessário
+  final String baseUrl = 'http://localhost:8080/eventos/convidados'; // ajuste se necessário
 
   Future<void> adicionarConvidado(String nome, String eventoId) async {
     final response = await http.post(
@@ -20,7 +20,7 @@ class ConvidadoService {
   }
 
   Future<List<String>> buscarConvidados(String eventoId) async {
-    final response = await http.get(Uri.parse('$baseUrl/evento/$eventoId'));
+    final response = await http.get(Uri.parse('$baseUrl'));
 
     if (response.statusCode == 200) {
       final List<dynamic> dados = jsonDecode(response.body);

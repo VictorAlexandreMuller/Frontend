@@ -29,11 +29,6 @@ class TokenService {
   static Future<void> verificarToken(BuildContext context) async {
     String? token = await TokenService.obterToken(); // <-- Aqui o ajuste
 
-    if (token == null) {
-      _redirecionarParaLogin(context);
-      return;
-    }
-
     final url = Uri.parse('${ApiConfig.baseUrl}/usuarios/verificarToken');
     final response = await http.get(
       url,
@@ -44,6 +39,13 @@ class TokenService {
     );
 
     if (response.statusCode != 200) {
+      final currentRoute = ModalRoute.of(context)?.settings.name;
+
+    if (currentRoute != LoginPage.name && currentRoute != RegisterPage.name && currentRoute != null) {
+      final currentRouteURI = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+       final prefs = await SharedPreferences.getInstance();
+       prefs.setString("rota_anterior", currentRouteURI);
+    }
       _redirecionarParaLogin(context);
     }
   }

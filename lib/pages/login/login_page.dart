@@ -3,6 +3,7 @@ import 'package:festora/pages/menu/home_section_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../pages/login/register_page.dart';
 import '../../services/login_service.dart';
@@ -55,7 +56,16 @@ class _LoginPage extends State<LoginPage> {
     });
 
     if (sucesso == true) {
+      final prefs = await SharedPreferences.getInstance();
+      final String? rotaAnterior = prefs.getString("rota_anterior");
+      if (rotaAnterior != null) {
+        await prefs.remove("rota_anterior");
+        context.go(rotaAnterior);
+        
+      } else {
       context.goNamed(HomeSectionPage.name);
+      }
+      
     } else {
       setState(() {
         _errorMessage = "Login ou senha incorretos";
