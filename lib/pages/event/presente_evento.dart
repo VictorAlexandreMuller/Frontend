@@ -32,6 +32,36 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     _evento = widget.evento;
   }
 
+  Future<void> cancelarEntrega(String presenteId) async {
+setState(() {
+      _carregando = true;
+    });
+
+    try {
+      bool sucesso = await PresenteService().removerResponsavel(presenteId);
+
+      if (sucesso) {
+        // Recarrega o evento após associar o responsável
+        await carregarEvento();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Entrega cancelada com sucesso!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao cancelar entrega.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _carregando = false;
+      });
+    }
+  }
+
   Future<void> _adicionarResponsavel(String presenteId) async {
     setState(() {
       _carregando = true;
@@ -196,80 +226,86 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _evento.presentes.isEmpty
-                  ? const Text('Nenhum presente cadastrado.')
-                  : ListView.builder(
-                      itemCount: _evento.presentes.length,
-                      itemBuilder: (context, index) {
-                        final presente = _evento.presentes[index];
-                        return Card(
-                          child: ExpansionTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Título e descrição à esquerda
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        presente.titulo,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        presente.descricao,
-                                        style: const TextStyle(
-                                            color: Colors.black54),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Row(
-                                  children: [
-                                    // Exibe o ícone de check circle apenas se houver responsáveis
-                                    if (presente.responsaveis.isNotEmpty)
-                                      const Icon(Icons.check_circle,
-                                          color: Colors.pinkAccent),
-                                    const SizedBox(width: 5),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          _adicionarResponsavel(presente.id),
-                                      child: const Text('Entregar'),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            children: [
-                              const Padding(
-                                padding:
-                                    EdgeInsets.only(left: 16.0, bottom: 8.0),
-                                child: Text(
-                                  'Quem vai entregar:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              if (presente.responsaveis.isEmpty)
-                                const Padding(
-                                  padding:
-                                      EdgeInsets.only(left: 16.0, bottom: 8.0),
-                                  child:
-                                      Text('Ninguém se responsabilizou ainda.'),
-                                )
-                              else
-                                ...presente.responsaveis.map((r) => ListTile(
-                                      leading: const Icon(Icons.person),
-                                      title: Text(r.nome),
-                                    )),
-                            ],
+  child: _evento.presentes.isEmpty
+      ? const Text('Nenhum presente cadastrado.')
+      : ListView.builder(
+          itemCount: _evento.presentes.length,
+          itemBuilder: (context, index) {
+            final presente = _evento.presentes[index];
+            return Card(
+              child: ExpansionTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Título e descrição à esquerda
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            presente.titulo,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        );
-                      },
+                          Text(
+                            presente.descricao,
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                        ],
+                      ),
                     ),
-            )
+                    const SizedBox(width: 10),
+                    Row(
+                      children: [
+                        // Exibe o ícone de check circle apenas se houver responsáveis
+                        if (presente.responsaveis.isNotEmpty)
+                          const Icon(Icons.check_circle,
+                              color: Colors.pinkAccent),
+                        const SizedBox(width: 5),
+                        // Altera o botão com base no valor de isResponsavel
+                        ElevatedButton(
+                          onPressed: _carregando
+                              ? null
+                              : () {
+                                  if (presente.isResponsavel) {
+                                    // Chama a função para cancelar a entrega
+                                    cancelarEntrega(presente.id);
+                                  } else {
+                                    // Chama a função para adicionar um responsável
+                                    _adicionarResponsavel(presente.id);
+                                  }
+                                },
+                          child: Text(presente.isResponsavel
+                              ? 'Cancelar'
+                              : 'Entregar'),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+                    child: Text(
+                      'Quem vai entregar:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  if (presente.responsaveis.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+                      child: Text('Ninguém se responsabilizou ainda.'),
+                    )
+                  else
+                    ...presente.responsaveis.map((r) => ListTile(
+                          leading: const Icon(Icons.person),
+                          title: Text(r.nome),
+                        )),
+                ],
+              ),
+            );
+          },
+        ),
+)
           ],
         ),
       ),

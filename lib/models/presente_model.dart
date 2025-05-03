@@ -5,12 +5,14 @@ class PresenteModel {
   final String titulo;
   final String descricao;
   final List<Usuario> responsaveis;
+  final bool isResponsavel;
 
   PresenteModel({
     required this.id,
     required this.titulo,
     required this.descricao,
     required this.responsaveis,
+    required this.isResponsavel
   });
 
   factory PresenteModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +23,7 @@ class PresenteModel {
       responsaveis: (json['responsaveis'] as List)
           .map((e) => Usuario.fromJson(e))
           .toList(),
+      isResponsavel: json['responsavel']
     );
   }
 }

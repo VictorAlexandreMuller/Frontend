@@ -56,12 +56,21 @@ class PresenteService {
     }
   }
 
-  Future<void> removerResponsavel(String presenteId) async {
-    final response =
-        await http.delete(Uri.parse('$baseUrl/removerResp/$presenteId'));
+  Future<bool> removerResponsavel(String presenteId) async {
+    final token = await TokenService.obterToken();
 
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao remover responsável');
+    final response = await http.delete(
+      Uri.parse('$baseUrl/removerResp/$presenteId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
-  }
+}
 }
