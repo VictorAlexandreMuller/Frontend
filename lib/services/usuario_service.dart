@@ -31,7 +31,7 @@ class UsuarioService {
     try {
       String? token = await TokenHelper.getToken();
       final response = await http.get(
-        Uri.parse('$url/find'),
+        Uri.parse('$url/isParticipando/$eventoId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

@@ -1,6 +1,7 @@
 import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:festora/services/token_service.dart';
+import 'package:festora/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +21,6 @@ class _ConviteLinkPageState extends State<ConviteLinkPage> {
   @override
   void initState() {
     super.initState();
-    carregarEvento();
     TokenService.verificarToken(context);
   }
 
@@ -29,7 +29,19 @@ class _ConviteLinkPageState extends State<ConviteLinkPage> {
     super.didChangeDependencies();
     if (!_carregado) {
       carregarEvento();
+      verificarParticipacao();
       _carregado = true;
+    }
+  }
+
+  Future<void> verificarParticipacao() async {
+    final eventoIdQuery = GoRouterState.of(context).uri.queryParameters['eventoId'];
+
+    if (eventoIdQuery != null) {
+      bool isParticipando = await UsuarioService().isParticipando(eventoIdQuery);
+    if (isParticipando) {
+      GoRouter.of(context).go('/menu');
+    }
     }
   }
 
