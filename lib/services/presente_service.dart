@@ -18,7 +18,8 @@ class PresenteService {
     }
   }
 
-  Future<bool> criarPresente(String eventoId, PresenteCreateModel presente) async {
+  Future<bool> criarPresente(
+      String eventoId, PresenteCreateModel presente) async {
     final token = await TokenService.obterToken();
 
     final response = await http.post(
@@ -34,14 +35,24 @@ class PresenteService {
       return true;
     } else {
       return false;
-    }    
+    }
   }
 
-  Future<void> adicionarResponsavel(String presenteId) async {
-    final response = await http.post(Uri.parse('$baseUrl/addResp/$presenteId'));
+  Future<bool> adicionarResponsavel(String presenteId) async {
+    final token = await TokenService.obterToken();
 
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao adicionar responsável');
+    final response = await http.post(
+      Uri.parse('$baseUrl/addResp/$presenteId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 

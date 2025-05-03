@@ -32,6 +32,36 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     _evento = widget.evento;
   }
 
+  Future<void> _adicionarResponsavel(String presenteId) async {
+    setState(() {
+      _carregando = true;
+    });
+
+    try {
+      bool sucesso = await PresenteService().adicionarResponsavel(presenteId);
+
+      if (sucesso) {
+        // Recarrega o evento após associar o responsável
+        await carregarEvento();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Responsável adicionado com sucesso!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao adicionar responsável.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _carregando = false;
+      });
+    }
+  }
+
   Future<void> _cadastrarPresente(String eventoId) async {
     final presente = PresenteCreateModel(
         titulo: _tituloController.text, descricao: _descricaoController.text);
@@ -166,26 +196,53 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _evento.presentes
-                      .isEmpty // Usando _evento para acessar os presentes
+              child: _evento.presentes.isEmpty
                   ? const Text('Nenhum presente cadastrado.')
                   : ListView.builder(
-                      itemCount: _evento
-                          .presentes.length, // Usando _evento aqui também
+                      itemCount: _evento.presentes.length,
                       itemBuilder: (context, index) {
-                        final presente =
-                            _evento.presentes[index]; // Usando _evento
+                        final presente = _evento.presentes[index];
                         return Card(
                           child: ExpansionTile(
                             title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(child: Text(presente.titulo)),
-                                if (presente.responsaveis.isNotEmpty)
-                                  const Icon(Icons.check_circle,
-                                      color: Colors.green),
+                                // Título e descrição à esquerda
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        presente.titulo,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        presente.descricao,
+                                        style: const TextStyle(
+                                            color: Colors.black54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Row(
+                                  children: [
+                                    // Exibe o ícone de check circle apenas se houver responsáveis
+                                    if (presente.responsaveis.isNotEmpty)
+                                      const Icon(Icons.check_circle,
+                                          color: Colors.pinkAccent),
+                                    const SizedBox(width: 5),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _adicionarResponsavel(presente.id),
+                                      child: const Text('Entregar'),
+                                    ),
+                                  ],
+                                )
                               ],
                             ),
-                            subtitle: Text(presente.descricao),
                             children: [
                               const Padding(
                                 padding:
