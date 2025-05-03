@@ -2,7 +2,7 @@ import 'package:festora/models/endereco_model.dart';
 import 'package:festora/models/presente_model.dart';
 import 'package:festora/models/usuario_response_model.dart';
 
-class Evento {
+class EventoDetails {
   final String id;
   final String titulo;
   final String descricao;
@@ -15,7 +15,7 @@ class Evento {
   final List<Usuario> participantes;
   final List<Usuario> convidados;
 
-  Evento({
+  EventoDetails({
     required this.id,
     required this.titulo,
     required this.descricao,
@@ -29,8 +29,8 @@ class Evento {
     required this.convidados,
   });
 
-  factory Evento.fromJson(Map<String, dynamic> json) {
-    return Evento(
+  factory EventoDetails.fromJson(Map<String, dynamic> json) {
+    return EventoDetails(
       id: json['id'],
       titulo: json['titulo'],
       descricao: json['descricao'],

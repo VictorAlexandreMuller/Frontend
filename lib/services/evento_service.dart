@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:festora/models/criar_evento_erro_model.dart';
+import 'package:festora/models/evento_details_model.dart';
 import 'package:flutter/foundation.dart'; // <-- para usar kIsWeb
 import 'package:festora/models/evento_model.dart';
 import 'package:http/http.dart' as http;
@@ -39,6 +40,25 @@ class EventoService {
     return (false, EventoErroModel());
   }
 }
+
+  Future<(bool, EventoDetails)> buscarEvento(String eventoId) async {
+    final token = await TokenHelper.getToken();
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$eventoId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+        final dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
+        return (true, EventoDetails.fromJson(data));
+
+    } catch (e) {
+      print(e);
+      throw Error();
+    }
+  }
+
 
   Future<List<EventoModel>> listarEventosAtivos() async {
     final token = await TokenHelper.getToken();

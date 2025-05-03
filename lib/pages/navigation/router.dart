@@ -1,4 +1,5 @@
 import 'package:festora/models/evento_model.dart';
+import 'package:festora/pages/convite/convite.dart';
 import 'package:festora/pages/funcionalidades/amigos/adicionar_amigo_page.dart';
 import 'package:festora/pages/funcionalidades/amigos/amigos_page.dart';
 import 'package:festora/pages/funcionalidades/amigos/convidar_amigos_page.dart';
@@ -119,6 +120,11 @@ abstract class AppRouter {
         name: ConvitesPage.routeName,
         builder: (context, state) => const ConvitesPage(),
       ),
+       GoRoute(
+        path: '/convite',
+        name: ConviteLinkPage.routeName,
+        builder: (context, state) => const ConviteLinkPage(),
+      )
     ],
   );
 }
