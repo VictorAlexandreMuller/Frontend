@@ -1,5 +1,9 @@
 import 'package:festora/models/evento_model.dart';
+<<<<<<< HEAD
 import 'package:festora/pages/convite/convite.dart';
+=======
+import 'package:festora/pages/event/presente_evento.dart';
+>>>>>>> 8a1690b64bd758133c4dd3bef7f679445db1972a
 import 'package:festora/pages/funcionalidades/amigos/adicionar_amigo_page.dart';
 import 'package:festora/pages/funcionalidades/amigos/amigos_page.dart';
 import 'package:festora/pages/funcionalidades/amigos/convidar_amigos_page.dart';
@@ -120,11 +124,28 @@ abstract class AppRouter {
         name: ConvitesPage.routeName,
         builder: (context, state) => const ConvitesPage(),
       ),
+<<<<<<< HEAD
        GoRoute(
         path: '/convite',
         name: ConviteLinkPage.routeName,
         builder: (context, state) => const ConviteLinkPage(),
       )
+=======
+      GoRoute(
+        path: '/presente-evento',
+        name: 'presente-evento',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is EventoModel) {
+            return PresenteEventoPage(evento: extra);
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Evento inválido.')),
+            );
+          }
+        },
+      ),
+>>>>>>> 8a1690b64bd758133c4dd3bef7f679445db1972a
     ],
   );
 }

@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:festora/pages/event/ver_evento/detalhes_evento_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onCreatePressed});
@@ -41,6 +43,11 @@ class HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  void _compartilharMensagem() {
+    final texto = "Olá, tudo bem?";
+    Share.share(texto);
+  }
+
   Future<void> _carregarDados() async {
     await carregarEventosAtivos();
     await carregarUsuario();
@@ -62,10 +69,26 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  // Future<void> _enviarMensagemWhatsApp() async {
+  //   final telefone = '5511950497880';
+  //   final mensagem = Uri.encodeComponent("Olá, tudo bem?");
+  //   final url = Uri.parse("https://wa.me/$telefone?text=$mensagem");
+
+  //   if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+  //     throw Exception('Não foi possível abrir o WhatsApp.');
+  //   }
+  // }
+
+  void _enviarMensagemWhatsApp() {
+    const mensagem = "Olá, tudo bem?";
+    Share.share(mensagem);
+  }
+
   final List<Map<String, dynamic>> funcoes = [
     {"icon": Icons.add, "label": "Criar Evento"},
     {"icon": Icons.calendar_today, "label": "Agenda"},
     {"icon": Icons.group, "label": "Amigos"},
+    {"icon": Icons.message, "label": "Enviar WhatsApp"},
   ];
 
   @override
@@ -195,8 +218,9 @@ class HomePageState extends State<HomePage> {
                           } else if (item['label'] == 'Agenda') {
                             GoRouter.of(context).pushNamed('agenda');
                           } else if (item['label'] == 'Amigos') {
-                            GoRouter.of(context)
-                                .pushNamed('amigos');
+                            GoRouter.of(context).pushNamed('amigos');
+                          } else if (item['label'] == 'Enviar WhatsApp') {
+                            _enviarMensagemWhatsApp();
                           }
                         },
                         child: Container(
