@@ -11,7 +11,7 @@ class EventoDetails {
   final bool ativo;
   final EnderecoModel endereco;
   final Usuario organizador;
-  final List<Presente> presentes;
+  final List<PresenteModel> presentes;
   final List<Usuario> participantes;
   final List<Usuario> convidados;
 
@@ -39,8 +39,8 @@ class EventoDetails {
       ativo: json['ativo'],
       endereco: EnderecoModel.fromJson(json['endereco']),
       organizador: Usuario.fromJson(json['organizador']),
-      presentes: (json['requisitos'] as List)
-          .map((e) => Presente.fromJson(e))
+      presentes: (json['presentes'] as List)
+          .map((e) => PresenteModel.fromJson(e))
           .toList(),
       participantes: (json['participantes'] as List)
           .map((e) => Usuario.fromJson(e))

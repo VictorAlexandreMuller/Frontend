@@ -1,21 +1,24 @@
 import 'dart:convert';
 import 'package:festora/models/criar_evento_erro_model.dart';
-<<<<<<< HEAD
 import 'package:festora/models/evento_details_model.dart';
-import 'package:flutter/foundation.dart'; // <-- para usar kIsWeb
-=======
->>>>>>> 8a1690b64bd758133c4dd3bef7f679445db1972a
+import 'package:flutter/foundation.dart'; 
 import 'package:festora/models/evento_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:festora/utils/TokenHelper.dart';
 import 'package:festora/config/api_config.dart';
 
 class EventoService {
+  static final String baseUrl = kIsWeb
+      ? 'http://localhost:8080/eventos' // navegador web (teste local)
+      : 'http://192.168.15.75:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR PC
+  // : 'http://192.168.71.222:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR NOTEBOOK
+
   Future<(bool, EventoErroModel)> criarEvento(EventoModel evento) async {
+    
     final token = await TokenHelper.getToken();
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.baseUrl),
+        Uri.parse(baseUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -39,7 +42,7 @@ class EventoService {
     }
   }
 
-  Future<(bool, EventoDetails)> buscarEvento(String eventoId) async {
+    Future<(bool, EventoDetails)> buscarEvento(String eventoId) async {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.get(
@@ -62,7 +65,7 @@ class EventoService {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/ativos'),
+        Uri.parse('$baseUrl/ativos'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -87,7 +90,7 @@ class EventoService {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/$id/desativar'),
+        Uri.parse('$baseUrl/$id/desativar'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -104,7 +107,7 @@ class EventoService {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/${evento.id}'),
+        Uri.parse('$baseUrl/${evento.id}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -132,7 +135,7 @@ class EventoService {
     final token = await TokenHelper.getToken();
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/$eventoId/verificar-autor'),
+        Uri.parse('$baseUrl/$eventoId/verificar-autor'),
         headers: {
           'Authorization': 'Bearer $token',
         },

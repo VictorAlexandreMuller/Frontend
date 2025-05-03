@@ -25,6 +25,7 @@ class _ConviteLinkPageState extends State<ConviteLinkPage> {
     TokenService.verificarToken(context);
   }
 
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_carregado) {
