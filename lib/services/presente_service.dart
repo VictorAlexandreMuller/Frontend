@@ -72,5 +72,23 @@ class PresenteService {
     } else {
       return false;
     }
-}
+  }
+
+  Future<bool> removerPresente(String presenteId) async {
+    final token = await TokenService.obterToken();
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/$presenteId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
