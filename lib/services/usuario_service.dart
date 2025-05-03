@@ -26,4 +26,27 @@ class UsuarioService {
       throw Exception('Falha ao carregar usuário ativo');
     }
   }
+
+  Future<bool> isParticipando(String eventoId) async {
+    try {
+      String? token = await TokenHelper.getToken();
+      final response = await http.get(
+        Uri.parse('$url/find'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 404) {
+        return false;
+      } else {
+        throw Exception("Erro ao verificar participação");
+      }
+    } catch (e) {
+      throw Exception("Erro ao verificar participação: $e");
+    }
+  }
 }

@@ -42,6 +42,30 @@ class EventoService {
     }
   }
 
+  Future<(bool, String)> participar(String eventoId) async {
+    
+    final token = await TokenHelper.getToken();
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/participar/$eventoId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        return (true, "Participação confirmada com sucesso!");
+      } else if (response.statusCode == 409) {
+        return (false, "Você já está participando do evento");
+      } else {
+        return (false, "Erro ao confirmar participação");
+      }
+    } catch (e) {
+      return (false, "Erro ao confirmar participação");
+    }
+  }
+
+
     Future<(bool, EventoDetails)> buscarEvento(String eventoId) async {
     final token = await TokenHelper.getToken();
     try {

@@ -1,7 +1,6 @@
 import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:festora/services/token_service.dart';
-import 'package:festora/utils/TokenHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +47,29 @@ class _ConviteLinkPageState extends State<ConviteLinkPage> {
     }
   }
 
+  Future<void> aceitarConvite() async {
+    if (evento != null) {
+      final resultado = await EventoService().participar(evento!.id);
+      final sucesso = resultado.$1;
+      final mensagem = resultado.$2;
+
+      if (sucesso) {
+        if (mounted) {
+          GoRouter.of(context).go('/menu');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(mensagem),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,9 +97,7 @@ class _ConviteLinkPageState extends State<ConviteLinkPage> {
                 EventoDetalhesCard(evento: evento!),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    // ação do botão aceitar aqui
-                  },
+                  onPressed: aceitarConvite,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
