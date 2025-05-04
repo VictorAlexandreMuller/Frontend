@@ -33,7 +33,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
   }
 
   Future<void> _excluirPresente(String presenteId) async {
-setState(() {
+    setState(() {
       _carregando = true;
     });
 
@@ -224,142 +224,207 @@ setState(() {
     );
   }
 
-  @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Cadastrar Presente'),
-      backgroundColor: Colors.pinkAccent,
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _nomeController,
-            decoration: const InputDecoration(
-              labelText: 'Nome do presente',
-              border: OutlineInputBorder(),
+  void _abrirModalEditar(presente) {
+    _tituloController.text = presente.titulo;
+    _descricaoController.text = presente.descricao;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Editar Presente'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _tituloController,
+              decoration: const InputDecoration(labelText: 'Título'),
             ),
+            TextField(
+              controller: _descricaoController,
+              decoration: const InputDecoration(labelText: 'Descrição'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancelar'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.card_giftcard),
-            label: const Text('Cadastrar'),
-            onPressed: _carregando ? null : _abrirModalCadastro,
-          ),
-          const SizedBox(height: 30),
-          const Text(
-            'Presentes já cadastrados:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: _evento.presentes.isEmpty
-                ? const Text('Nenhum presente cadastrado.')
-                : ListView.builder(
-                    itemCount: _evento.presentes.length,
-                    itemBuilder: (context, index) {
-                      final presente = _evento.presentes[index];
-                      return Card(
-                        child: ExpansionTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Título e descrição à esquerda
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      presente.titulo,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      presente.descricao,
-                                      style: const TextStyle(
-                                          color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Row(
-                                children: [
-                                  if(_evento.isAutor) ...[
-                                  // Botão Excluir à esquerda do Entregar/Cancelar
-                                  ElevatedButton(
-                                    onPressed: _carregando
-                                        ? null
-                                        : () {
-                                            // Chama a função de exclusão
-                                            _excluirPresente(presente.id);
-                                          },
-                                    child: const Text('Excluir'),
-                                  ),
-                                  ],
-                                  const SizedBox(width: 5),
-                                  // Botão Entregar/Cancelar
-                                  ElevatedButton(
-                                    onPressed: _carregando
-                                        ? null
-                                        : () {
-                                            if (presente.isResponsavel) {
-                                              // Chama a função para cancelar a entrega
-                                              cancelarEntrega(presente.id);
-                                            } else {
-                                              // Chama a função para adicionar um responsável
-                                              _adicionarResponsavel(presente.id);
-                                            }
-                                          },
-                                    child: Text(presente.isResponsavel
-                                        ? 'Cancelar'
-                                        : 'Entregar'),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  // Coloca um SizedBox com largura fixa para reservar espaço para o ícone
-                                  SizedBox(
-                                    width:
-                                        24, // Largura do ícone de check (ajustável)
-                                    child: presente.responsaveis.isNotEmpty
-                                        ? const Icon(Icons.check_circle,
-                                            color: Colors.pinkAccent)
-                                        : null,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
-                              child: Text(
-                                'Quem vai entregar:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            if (presente.responsaveis.isEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
-                                child: Text('Ninguém se responsabilizou ainda.'),
-                              )
-                            else
-                              ...presente.responsaveis.map((r) => ListTile(
-                                    leading: const Icon(Icons.person),
-                                    title: Text(r.nome),
-                                  )),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+          ElevatedButton(
+            child: const Text('Salvar'),
+            onPressed: _carregando
+                ? null
+                : () async {
+                    await PresenteService().editarPresente(
+                      presente.id,
+                      PresenteCreateModel(
+                        titulo: _tituloController.text,
+                        descricao: _descricaoController.text,
+                      ),
+                    );
+                    await carregarEvento();
+                    Navigator.of(context).pop();
+                  },
           ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Presentes'),
+        backgroundColor: Colors.pinkAccent,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _nomeController,
+              decoration: const InputDecoration(
+                labelText: 'Nome do presente',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_evento.isAutor)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.card_giftcard),
+              label: const Text('Cadastrar'),
+              onPressed: _carregando ? null : _abrirModalCadastro,
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              'Presentes já cadastrados:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: _evento.presentes.isEmpty
+                  ? const Text('Nenhum presente cadastrado.')
+                  : ListView.builder(
+                      itemCount: _evento.presentes.length,
+                      itemBuilder: (context, index) {
+                        final presente = _evento.presentes[index];
+                        return Card(
+                          child: ExpansionTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Título e descrição à esquerda
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        presente.titulo,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        presente.descricao,
+                                        style: const TextStyle(
+                                            color: Colors.black54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Row(
+                                  children: [
+                                    if (_evento.isAutor) ...[
+                                      // Botão Editar
+                                      ElevatedButton(
+                                        onPressed: _carregando
+                                            ? null
+                                            : () {
+                                                // Aqui você pode abrir um modal para editar o presente
+                                                _abrirModalEditar(presente);
+                                              },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.orangeAccent,
+                                        ),
+                                        child: const Text('Editar'),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      // Botão Excluir
+                                      ElevatedButton(
+                                        onPressed: _carregando
+                                            ? null
+                                            : () {
+                                                _excluirPresente(presente.id);
+                                              },
+                                        child: const Text('Excluir'),
+                                      ),
+                                    ],
+                                    const SizedBox(width: 5),
+                                    // Botão Entregar/Cancelar
+                                    ElevatedButton(
+                                      onPressed: _carregando
+                                          ? null
+                                          : () {
+                                              if (presente.isResponsavel) {
+                                                // Chama a função para cancelar a entrega
+                                                cancelarEntrega(presente.id);
+                                              } else {
+                                                // Chama a função para adicionar um responsável
+                                                _adicionarResponsavel(
+                                                    presente.id);
+                                              }
+                                            },
+                                      child: Text(presente.isResponsavel
+                                          ? 'Cancelar'
+                                          : 'Entregar'),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    // Coloca um SizedBox com largura fixa para reservar espaço para o ícone
+                                    SizedBox(
+                                      width:
+                                          24, // Largura do ícone de check (ajustável)
+                                      child: presente.responsaveis.isNotEmpty
+                                          ? const Icon(Icons.check_circle,
+                                              color: Colors.pinkAccent)
+                                          : null,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            children: [
+                              const Padding(
+                                padding:
+                                    EdgeInsets.only(left: 16.0, bottom: 8.0),
+                                child: Text(
+                                  'Quem vai entregar:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              if (presente.responsaveis.isEmpty)
+                                const Padding(
+                                  padding:
+                                      EdgeInsets.only(left: 16.0, bottom: 8.0),
+                                  child:
+                                      Text('Ninguém se responsabilizou ainda.'),
+                                )
+                              else
+                                ...presente.responsaveis.map((r) => ListTile(
+                                      leading: const Icon(Icons.person),
+                                      title: Text(r.nome),
+                                    )),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

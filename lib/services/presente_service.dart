@@ -38,6 +38,26 @@ class PresenteService {
     }
   }
 
+  Future<bool> editarPresente(
+      String presenteId, PresenteCreateModel presente) async {
+    final token = await TokenService.obterToken();
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/$presenteId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(presente.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<bool> adicionarResponsavel(String presenteId) async {
     final token = await TokenService.obterToken();
 
