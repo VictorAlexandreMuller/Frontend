@@ -14,6 +14,7 @@ class EventoDetails {
   final List<PresenteModel> presentes;
   final List<Usuario> participantes;
   final List<Usuario> convidados;
+  final bool isAutor;
 
   EventoDetails({
     required this.id,
@@ -27,6 +28,7 @@ class EventoDetails {
     required this.presentes,
     required this.participantes,
     required this.convidados,
+    required this.isAutor,
   });
 
   factory EventoDetails.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class EventoDetails {
       convidados: (json['convidados'] as List)
           .map((e) => Usuario.fromJson(e))
           .toList(),
+      isAutor: json['autor'],
     );
   }
 }

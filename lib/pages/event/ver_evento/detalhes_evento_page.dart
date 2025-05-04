@@ -68,7 +68,7 @@ class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-           RotaAnteriorUtils.redirecionar(context);
+            RotaAnteriorUtils.redirecionar(context);
           },
         ),
       ),
@@ -139,88 +139,90 @@ class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
                       '${evento.endereco.rua}, ${evento.endereco.numero} - ${evento.endereco.cidade} - ${evento.endereco.estado}',
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          label: const Text('Editar',
-                              style: TextStyle(color: Colors.blue)),
-                          onPressed: () async {
-                            EventoModel eventoModel =
-                                EventoModel.fromDetails(evento);
-                            final result = await context.pushNamed<String>(
-                              'criar-evento',
-                              extra: eventoModel,
-                            );
-                            if (context.mounted && result == 'evento_editado') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Evento atualizado com sucesso!'),
-                                ),
+                    if (evento.isAutor)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton.icon(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            label: const Text('Editar',
+                                style: TextStyle(color: Colors.blue)),
+                            onPressed: () async {
+                              EventoModel eventoModel =
+                                  EventoModel.fromDetails(evento);
+                              final result = await context.pushNamed<String>(
+                                'criar-evento',
+                                extra: eventoModel,
                               );
-                              Navigator.of(context).pop();
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton.icon(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          label: const Text('Excluir',
-                              style: TextStyle(color: Colors.red)),
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Excluir Evento'),
-                                    content: const Text(
-                                        'Tem certeza que deseja excluir este evento?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                        child: const Text('Cancelar'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                        ),
-                                        child: const Text('Excluir'),
-                                      ),
-                                    ],
+                              if (context.mounted &&
+                                  result == 'evento_editado') {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Evento atualizado com sucesso!'),
                                   ),
-                                ) ??
-                                false;
+                                );
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton.icon(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            label: const Text('Excluir',
+                                style: TextStyle(color: Colors.red)),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Excluir Evento'),
+                                      content: const Text(
+                                          'Tem certeza que deseja excluir este evento?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: const Text('Cancelar'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                          ),
+                                          child: const Text('Excluir'),
+                                        ),
+                                      ],
+                                    ),
+                                  ) ??
+                                  false;
 
-                            if (confirm) {
-                              try {
-                                await EventoService()
-                                    .desativarEvento(evento.id!);
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Evento excluído com sucesso.')),
-                                  );
-                                  Navigator.of(context).pop();
-                                }
-                              } catch (_) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text('Erro ao excluir evento.')),
-                                  );
+                              if (confirm) {
+                                try {
+                                  await EventoService()
+                                      .desativarEvento(evento.id!);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Evento excluído com sucesso.')),
+                                    );
+                                    Navigator.of(context).pop();
+                                  }
+                                } catch (_) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Erro ao excluir evento.')),
+                                    );
+                                  }
                                 }
                               }
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                            },
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),

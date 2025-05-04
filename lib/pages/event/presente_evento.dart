@@ -288,6 +288,7 @@ Widget build(BuildContext context) {
                               const SizedBox(width: 10),
                               Row(
                                 children: [
+                                  if(_evento.isAutor) ...[
                                   // Botão Excluir à esquerda do Entregar/Cancelar
                                   ElevatedButton(
                                     onPressed: _carregando
@@ -298,6 +299,7 @@ Widget build(BuildContext context) {
                                           },
                                     child: const Text('Excluir'),
                                   ),
+                                  ],
                                   const SizedBox(width: 5),
                                   // Botão Entregar/Cancelar
                                   ElevatedButton(
