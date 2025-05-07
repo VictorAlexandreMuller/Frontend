@@ -48,7 +48,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
         // Recarrega o evento após associar o responsável
         await carregarPresentes();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Entrega cancelada com sucesso!')),
+          const SnackBar(content: Text('EnEditartrega cancelada com sucesso!')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -230,52 +230,79 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     );
   }
 
-  void _abrirModalEditar(presente) {
-    _tituloController.text = presente.titulo;
-    _descricaoController.text = presente.descricao;
+void _abrirModalEditar(PresenteModel presente) {
+  _tituloController.text = presente.titulo;
+  _descricaoController.text = presente.descricao;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar Presente'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _tituloController,
-              decoration: const InputDecoration(labelText: 'Título'),
-            ),
-            TextField(
-              controller: _descricaoController,
-              decoration: const InputDecoration(labelText: 'Descrição'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Cancelar'),
-            onPressed: () => Navigator.of(context).pop(),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Editar Presente'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _tituloController,
+            decoration: const InputDecoration(labelText: 'Título'),
           ),
-          ElevatedButton(
-            child: const Text('Salvar'),
-            onPressed: _carregando
-                ? null
-                : () async {
-                    await PresenteService().editarPresente(
+          TextField(
+            controller: _descricaoController,
+            decoration: const InputDecoration(labelText: 'Descrição'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Cancelar'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        ElevatedButton(
+          child: const Text('Salvar'),
+          onPressed: _carregando
+              ? null
+              : () async {
+                  setState(() => _carregando = true);
+                  try {
+                    (bool, PresenteModel) response =
+                        await PresenteService().editarPresente(
                       presente.id,
                       PresenteCreateModel(
                         titulo: _tituloController.text,
                         descricao: _descricaoController.text,
                       ),
                     );
-                    carregarPresentes();
-                    Navigator.of(context).pop();
-                  },
-          ),
-        ],
-      ),
-    );
-  }
+
+                    if (response.$1) {
+                      setState(() {
+                        final index =
+                            presentes.indexWhere((p) => p.id == response.$2.id);
+                        if (index != -1) {
+                          presentes[index] = response.$2;
+                        }
+                      });
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Presente editado com sucesso!')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Erro ao editar presente.')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro: ${e.toString()}')),
+                    );
+                  } finally {
+                    setState(() => _carregando = false);
+                  }
+                },
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

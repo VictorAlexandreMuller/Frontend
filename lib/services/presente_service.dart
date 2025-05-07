@@ -48,7 +48,7 @@ class PresenteService {
     }
   }
 
-  Future<bool> editarPresente(
+  Future<(bool, PresenteModel)> editarPresente(
       String presenteId, PresenteCreateModel presente) async {
     final token = await TokenService.obterToken();
 
@@ -62,9 +62,10 @@ class PresenteService {
     );
 
     if (response.statusCode == 200) {
-      return true;
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      return (true, PresenteModel.fromJson(data));
     } else {
-      return false;
+      throw Exception('Erro ao listar presentes');
     }
   }
 
