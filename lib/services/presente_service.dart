@@ -87,7 +87,7 @@ class PresenteService {
     }
   }
 
-  Future<bool> removerResponsavel(String presenteId) async {
+  Future<(bool, PresenteModel)> removerResponsavel(String presenteId) async {
     final token = await TokenService.obterToken();
 
     final response = await http.delete(
@@ -99,9 +99,10 @@ class PresenteService {
     );
 
     if (response.statusCode == 200) {
-      return true;
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      return (true, PresenteModel.fromJson(data));
     } else {
-      return false;
+      throw Exception('Erro ao listar presentes');
     }
   }
 

@@ -72,11 +72,15 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     });
 
     try {
-      bool sucesso = await PresenteService().removerResponsavel(presenteId);
+      (bool, PresenteModel) response = await PresenteService().removerResponsavel(presenteId);
 
-      if (sucesso) {
-        // Recarrega o evento após associar o responsável
-        await carregarPresentes();
+      if (response.$1) {
+        setState(() {
+          final index = presentes.indexWhere((p) => p.id == response.$2.id);
+          if (index != -1) {
+            presentes[index] = response.$2;
+          }
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Entrega cancelada com sucesso!')),
         );
