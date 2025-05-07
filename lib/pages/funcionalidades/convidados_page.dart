@@ -1,6 +1,8 @@
 import 'package:festora/models/evento_details_model.dart';
 import 'package:festora/services/convidado_service.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ConvidadosPage extends StatefulWidget {
   final EventoDetails evento;
@@ -18,6 +20,8 @@ class _ConvidadosPageState extends State<ConvidadosPage> {
   bool _isLoading = false;
   List<String> _convidados = []; // apenas nomes por enquanto
   bool _carregandoLista = true;
+
+  final baseUrl = dotenv.env['BASE_URL']?.replaceAll('%23', '#');
 
   Future<void> _carregarConvidados() async {
     setState(() => _carregandoLista = true);
@@ -83,19 +87,45 @@ class _ConvidadosPageState extends State<ConvidadosPage> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _adicionarConvidado,
-              icon: const Icon(Icons.add),
-              label: const Text('Adicionar Convidado'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFADD8E6), // azul bebê
-                foregroundColor:
-                    const Color.fromARGB(255, 0, 0, 0), // cor do texto e ícone
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _adicionarConvidado,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Adicionar Convidado'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFADD8E6),
+                      foregroundColor: Colors.black,
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                TextButton.icon(
+                  onPressed: () {
+                    final baseUrl =
+                        dotenv.env['BASE_URL']?.replaceAll('%23', '#') ?? '';
+                    final conviteUrl =
+                        '$baseUrl/convite?eventoId=${widget.evento.id}';
+                    final mensagem =
+                        'Você está convidado para o ${widget.evento.tipo}, "${widget.evento.titulo}"! 🎉\n\nConfirme sua presença: $conviteUrl';
+
+                    Share.share(mensagem);
+                  },
+                  icon: const Icon(Icons.share, color: Colors.pinkAccent),
+                  label: const Text(
+                    'Compartilhar',
+                    style: TextStyle(
+                      color: Colors.pinkAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              ],
             ),
             const SizedBox(height: 20),
             Expanded(

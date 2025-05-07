@@ -107,7 +107,7 @@ abstract class AppRouter {
         name: 'convidar-amigos',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is EventoModel) {
+          if (extra is EventoDetails) {
             return ConvidarAmigosPage(evento: extra);
           } else {
             return const Scaffold(

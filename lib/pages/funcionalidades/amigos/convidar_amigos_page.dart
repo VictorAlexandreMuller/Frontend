@@ -1,10 +1,11 @@
+import 'package:festora/models/evento_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:festora/models/evento_model.dart';
 import 'package:festora/services/amizade_service.dart';
 import 'package:festora/services/convite_service.dart';
 
 class ConvidarAmigosPage extends StatefulWidget {
-  final EventoModel evento;
+  final EventoDetails evento;
   const ConvidarAmigosPage({super.key, required this.evento});
   static const String routeName = 'convidar-amigos';
 
