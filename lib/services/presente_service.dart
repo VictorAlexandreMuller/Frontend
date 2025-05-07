@@ -7,11 +7,19 @@ import 'package:http/http.dart' as http;
 class PresenteService {
   final String baseUrl = 'http://localhost:8080/eventos/presentes';
 
-  Future<List<PresenteModel>> listarPresentes(String eventoId) async {
-    final response = await http.get(Uri.parse('$baseUrl/listar/$eventoId'));
+  Future<List<PresenteModel>> buscarPresentes(String eventoId) async {
+    final token = await TokenService.obterToken();
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/$eventoId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body) as List;
+      final data = jsonDecode(utf8.decode(response.bodyBytes)) as List;
       return data.map((json) => PresenteModel.fromJson(json)).toList();
     } else {
       throw Exception('Erro ao listar presentes');

@@ -11,9 +11,6 @@ class EventoDetails {
   final bool ativo;
   final EnderecoModel endereco;
   final Usuario organizador;
-  final List<PresenteModel> presentes;
-  final List<Usuario> participantes;
-  final List<Usuario> convidados;
   final bool isAutor;
 
   EventoDetails({
@@ -25,9 +22,6 @@ class EventoDetails {
     required this.ativo,
     required this.endereco,
     required this.organizador,
-    required this.presentes,
-    required this.participantes,
-    required this.convidados,
     required this.isAutor,
   });
 
@@ -41,15 +35,6 @@ class EventoDetails {
       ativo: json['ativo'],
       endereco: EnderecoModel.fromJson(json['endereco']),
       organizador: Usuario.fromJson(json['organizador']),
-      presentes: (json['presentes'] as List)
-          .map((e) => PresenteModel.fromJson(e))
-          .toList(),
-      participantes: (json['participantes'] as List)
-          .map((e) => Usuario.fromJson(e))
-          .toList(),
-      convidados: (json['convidados'] as List)
-          .map((e) => Usuario.fromJson(e))
-          .toList(),
       isAutor: json['autor'],
     );
   }

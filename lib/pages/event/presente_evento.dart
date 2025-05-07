@@ -1,5 +1,6 @@
 import 'package:festora/models/criar_presente_model.dart';
 import 'package:festora/models/evento_details_model.dart';
+import 'package:festora/models/presente_model.dart';
 import 'package:festora/services/evento_service.dart';
 import 'package:festora/services/presente_service.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +27,13 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
   bool _carregando = false;
   late EventoDetails _evento;
 
+  late List<PresenteModel> presentes = [];
+
   @override
   void initState() {
     super.initState();
     _evento = widget.evento;
+    carregarPresentes();
   }
 
   Future<void> _excluirPresente(String presenteId) async {
@@ -42,7 +46,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
 
       if (sucesso) {
         // Recarrega o evento após associar o responsável
-        await carregarEvento();
+        await carregarPresentes();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Entrega cancelada com sucesso!')),
         );
@@ -72,7 +76,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
 
       if (sucesso) {
         // Recarrega o evento após associar o responsável
-        await carregarEvento();
+        await carregarPresentes();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Entrega cancelada com sucesso!')),
         );
@@ -102,7 +106,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
 
       if (sucesso) {
         // Recarrega o evento após associar o responsável
-        await carregarEvento();
+        await carregarPresentes();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Responsável adicionado com sucesso!')),
         );
@@ -135,7 +139,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
 
       if (sucesso) {
         // Recarrega o evento após o cadastro do presente
-        await carregarEvento();
+        await carregarPresentes();
         // Exibe uma mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Presente cadastrado com sucesso!')),
@@ -156,22 +160,16 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     }
   }
 
-  Future<void> carregarEvento() async {
+  Future<void> carregarPresentes() async {
     setState(() {
       _carregando = true;
     });
 
     try {
-      final (sucesso, evento) = await EventoService().buscarEvento(_evento.id);
-      if (sucesso) {
-        setState(() {
-          _evento = evento;
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao carregar evento.')),
-        );
-      }
+      final presentes = await PresenteService().buscarPresentes(_evento.id);
+      setState(() {
+        this.presentes = presentes;
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: ${e.toString()}')),
@@ -262,7 +260,7 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
                         descricao: _descricaoController.text,
                       ),
                     );
-                    await carregarEvento();
+                    carregarPresentes();
                     Navigator.of(context).pop();
                   },
           ),
@@ -292,11 +290,11 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
             ),
             const SizedBox(height: 20),
             if (_evento.isAutor)
-            ElevatedButton.icon(
-              icon: const Icon(Icons.card_giftcard),
-              label: const Text('Cadastrar'),
-              onPressed: _carregando ? null : _abrirModalCadastro,
-            ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.card_giftcard),
+                label: const Text('Cadastrar'),
+                onPressed: _carregando ? null : _abrirModalCadastro,
+              ),
             const SizedBox(height: 30),
             const Text(
               'Presentes já cadastrados:',
@@ -304,12 +302,12 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: _evento.presentes.isEmpty
+              child: presentes.isEmpty
                   ? const Text('Nenhum presente cadastrado.')
                   : ListView.builder(
-                      itemCount: _evento.presentes.length,
+                      itemCount: presentes.length,
                       itemBuilder: (context, index) {
-                        final presente = _evento.presentes[index];
+                        final presente = presentes[index];
                         return Card(
                           child: ExpansionTile(
                             title: Row(

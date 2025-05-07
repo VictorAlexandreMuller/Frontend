@@ -162,7 +162,10 @@ class _DetalhesEventoPageState extends State<DetalhesEventoPage> {
                                         Text('Evento atualizado com sucesso!'),
                                   ),
                                 );
-                                Navigator.of(context).pop();
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                await carregarEvento(); // recarrega os dados do evento atualizado
                               }
                             },
                           ),
