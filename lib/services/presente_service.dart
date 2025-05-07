@@ -26,7 +26,7 @@ class PresenteService {
     }
   }
 
-  Future<bool> criarPresente(
+  Future<(bool, PresenteModel)> criarPresente(
       String eventoId, PresenteCreateModel presente) async {
     final token = await TokenService.obterToken();
 
@@ -40,9 +40,11 @@ class PresenteService {
     );
 
     if (response.statusCode == 200) {
-      return true;
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      print(data);
+      return (true, PresenteModel.fromJson(data));
     } else {
-      return false;
+      throw Exception('Erro ao listar presentes');
     }
   }
 
@@ -66,7 +68,7 @@ class PresenteService {
     }
   }
 
-  Future<bool> adicionarResponsavel(String presenteId) async {
+  Future<(bool, PresenteModel)> adicionarResponsavel(String presenteId) async {
     final token = await TokenService.obterToken();
 
     final response = await http.post(
@@ -78,9 +80,10 @@ class PresenteService {
     );
 
     if (response.statusCode == 200) {
-      return true;
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      return (true, PresenteModel.fromJson(data));
     } else {
-      return false;
+      throw Exception('Erro ao listar presentes');
     }
   }
 

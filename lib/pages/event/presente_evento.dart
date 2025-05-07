@@ -102,11 +102,16 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
     });
 
     try {
-      bool sucesso = await PresenteService().adicionarResponsavel(presenteId);
+      (bool, PresenteModel) sucesso =
+          await PresenteService().adicionarResponsavel(presenteId);
 
-      if (sucesso) {
-        // Recarrega o evento após associar o responsável
-        await carregarPresentes();
+      if (sucesso.$1) {
+        setState(() {
+          final index = presentes.indexWhere((p) => p.id == sucesso.$2.id);
+          if (index != -1) {
+            presentes[index] = sucesso.$2;
+          }
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Responsável adicionado com sucesso!')),
         );
@@ -129,17 +134,16 @@ class _PresenteEventoPageState extends State<PresenteEventoPage> {
   Future<void> _cadastrarPresente(String eventoId) async {
     final presente = PresenteCreateModel(
         titulo: _tituloController.text, descricao: _descricaoController.text);
-
     setState(() {
       _carregando = true;
     });
-
     try {
-      bool sucesso = await PresenteService().criarPresente(eventoId, presente);
-
-      if (sucesso) {
-        // Recarrega o evento após o cadastro do presente
-        await carregarPresentes();
+      (bool, PresenteModel) response =
+          await PresenteService().criarPresente(eventoId, presente);
+      if (response.$1) {
+        setState(() {
+          presentes.add(response.$2);
+        });
         // Exibe uma mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Presente cadastrado com sucesso!')),
