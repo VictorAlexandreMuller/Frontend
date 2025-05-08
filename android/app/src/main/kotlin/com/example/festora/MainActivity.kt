@@ -1,4 +1,4 @@
-package com.example.festora
+package br.com.doceencontro
 
 import io.flutter.embedding.android.FlutterActivity
 

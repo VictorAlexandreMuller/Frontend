@@ -3,7 +3,7 @@ apply plugin: "kotlin-android"
 apply plugin: "dev.flutter.flutter-gradle-plugin"
 
 android {
-    namespace "com.example.festora"
+    namespace "br.com.doceencontro"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.festora"
+        applicationId "br.com.doceencontro"
         minSdk flutter.minSdkVersion
         targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
