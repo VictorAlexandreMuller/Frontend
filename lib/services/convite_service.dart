@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:festora/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:festora/services/token_service.dart';
 
 class ConviteService {
-  final String baseUrl = 'http://localhost:8080/eventos/convites';
+  final String baseUrl = '${ApiConfig.baseUrl}/eventos/convites';
 
   Future<void> enviarConvites(String eventoId, List<String> usuariosIds) async {
     final token = await TokenService.obterToken();

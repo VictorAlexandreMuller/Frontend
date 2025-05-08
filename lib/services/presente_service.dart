@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'package:festora/config/api_config.dart';
 import 'package:festora/models/criar_presente_model.dart';
 import 'package:festora/models/presente_model.dart';
 import 'package:festora/services/token_service.dart';
 import 'package:http/http.dart' as http;
 
 class PresenteService {
-  final String baseUrl = 'http://localhost:8080/eventos/presentes';
+  final String baseUrl = '${ApiConfig.baseUrl}/eventos/presentes';
 
   Future<List<PresenteModel>> buscarPresentes(String eventoId) async {
     final token = await TokenService.obterToken();

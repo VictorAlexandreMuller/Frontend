@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:festora/config/api_config.dart';
 import 'package:http/http.dart' as http;
 
 class ConvidadoService {
-  final String baseUrl = 'http://localhost:8080/eventos/convidados'; // ajuste se necessário
+  final String baseUrl = '${ApiConfig.baseUrl}/eventos/convidados'; // ajuste se necessário
 
   Future<void> adicionarConvidado(String nome, String eventoId) async {
     final response = await http.post(

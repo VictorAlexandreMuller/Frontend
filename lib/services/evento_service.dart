@@ -8,10 +8,7 @@ import 'package:festora/utils/TokenHelper.dart';
 import 'package:festora/config/api_config.dart';
 
 class EventoService {
-  static final String baseUrl = kIsWeb
-      ? 'http://localhost:8080/eventos' // navegador web (teste local)
-      : 'http://192.168.15.75:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR PC
-  // : 'http://192.168.71.222:8080/eventos'; // seu IP real da máquina, usado pelo celular VICTOR NOTEBOOK
+  static final String baseUrl = '${ApiConfig.baseUrl}/eventos';
 
   Future<(bool, EventoErroModel)> criarEvento(EventoModel evento) async {
     
