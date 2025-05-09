@@ -1,0 +1,2 @@
+C:/Users/Victor/Documents/Dev/## Doce Encontro/Frontend/android/app/.cxx/Debug/50516u6z/x86/CMakeFiles/edit_cache.dir
+C:/Users/Victor/Documents/Dev/## Doce Encontro/Frontend/android/app/.cxx/Debug/50516u6z/x86/CMakeFiles/rebuild_cache.dir
